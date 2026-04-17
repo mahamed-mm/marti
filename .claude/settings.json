@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Write",
+      "Edit",
+      "mcp__xcodebuildmcp__*",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(swift *)",
+      "Bash(swiftlint *)",
+      "Bash(swift-format *)",
+      "Bash(xcrun simctl *)"
+    ],
+    "deny": [
+      "Read(.env*)",
+      "Read(**/Secrets.swift)",
+      "Read(**/GoogleService-Info.plist)",
+      "Write(.env*)",
+      "Write(**/Secrets.swift)",
+      "Edit(.env*)",
+      "Edit(**/Secrets.swift)",
+      "Bash(rm -rf *)",
+      "Bash(git push *)",
+      "Bash(git reset --hard *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-swift-edit.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,118 @@
+# Project: [App Name]
+
+> One-line description of what this app does and who it's for.
+
+## Stack
+
+- **Language:** Swift 6 (strict concurrency on)
+- **UI:** SwiftUI
+- **Architecture:** MVVM
+- **State:** `@Observable` macro (not `ObservableObject`)
+- **Testing:** Swift Testing (`@Test`, `#expect`) — not XCTest
+- **Persistence:** SwiftData
+- **Networking:** `URLSession` + async/await
+- **Min target:** iOS 17.0
+- **Xcode:** 16.x
+
+## XcodeBuildMCP
+
+This project uses XcodeBuildMCP for all Xcode operations. Prefer these over shell commands:
+
+- **Build:** `mcp__xcodebuildmcp__build_sim_name_proj`
+- **Test:** `mcp__xcodebuildmcp__test_sim_name_proj`
+- **Clean:** `mcp__xcodebuildmcp__clean`
+- **Run on simulator:** `mcp__xcodebuildmcp__boot_simulator` → `install_app` → `launch_app`
+- **Logs:** `mcp__xcodebuildmcp__capture_logs`
+- **Screenshot:** `mcp__xcodebuildmcp__screenshot`
+
+Default simulator: iPhone 16 pro.
+
+## Architecture rules
+
+- **Views are dumb.** No business logic, no networking, no persistence in `View` bodies.
+- **ViewModels are `@Observable` classes**, one per screen. Inject dependencies via initializer.
+- **Models are pure Swift structs.** No `SwiftUI` or `UIKit` imports.
+- **Services are protocol + concrete implementation.** Protocol lives next to the implementation.
+- **No singletons** except Apple-provided ones (`FileManager`, `URLSession.shared`, etc.).
+- **No global state.** Everything flows through ViewModels.
+
+## File layout
+
+```
+App/
+├── Models/         — pure data structs
+├── Views/          — SwiftUI views (one folder per feature when it grows)
+├── ViewModels/     — @Observable classes, one per screen
+├── Services/       — protocols + implementations (NetworkService, StorageService, etc.)
+├── Resources/      — Assets.xcassets, Localizable.xcstrings
+├── Extensions/     — Swift/SwiftUI extensions
+└── App.swift       — @main entry point
+
+docs/
+├── PRD.md          — Product Requirements Document
+├── specs/          — Feature specs (one per feature)
+└── tasks/          — Task breakdowns (one per feature)
+```
+
+## Development workflow
+
+For new features, follow the PRD workflow:
+
+1. `/create-prd` — at project start, generate `docs/PRD.md`.
+2. `/generate-spec <feature>` — generate `docs/specs/<feature>.md` from the PRD.
+3. `/generate-tasks <feature>` — break the spec into ordered tasks.
+4. `/new-feature <feature>` — implement, test, build, HIG-review.
+5. `/build`, `/test`, `/run-app` — quick standalone commands.
+6. `/ship-prep` — App Store readiness check before submission.
+
+## Code style
+
+- Follow the [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/) without exceptions.
+- Prefer `let` over `var`. Prefer value types over reference types.
+- `async`/`await` over completion handlers. No Combine for new code.
+- Force unwraps (`!`) are banned outside `@IBOutlets` and tests.
+- Use `guard` for early returns, not nested `if`.
+- Comments explain *why*, not *what*. Self-documenting code first.
+- Keep functions under ~20 lines. Extract when they grow.
+
+## SwiftUI rules
+
+- Use `@State` for view-local state only.
+- Use `@Bindable` (not `@ObservedObject`) for `@Observable` ViewModels.
+- Extract subviews when a body exceeds ~50 lines.
+- Prefer `ViewBuilder` closures over `AnyView`.
+- Use SF Symbols for all icons. No raster icons unless brand assets.
+- Always provide `.accessibilityLabel` on interactive elements without visible text.
+- Test layouts at AX5 (largest accessibility size).
+
+## Testing
+
+- Use Swift Testing for all new tests (`@Test`, `#expect`, `#require`).
+- Test ViewModels and Services. Do not test SwiftUI view bodies.
+- Snapshot tests are reserved for design-system primitives only.
+- One test file per ViewModel, mirroring the source folder structure.
+- Mock services by conforming a test double to the service protocol. No mocking frameworks.
+- Cover happy path, error path, and edge cases (empty, nil, boundary).
+
+## Dependencies
+
+- **Default policy:** no third-party SPM packages without explicit approval.
+- Currently approved: [list any here, e.g. `swift-collections`, `swift-log`]
+- Prefer Apple frameworks. Reach for third-party only when the cost of building it ourselves is clearly higher.
+
+## What NOT to do
+
+- Don't write UIKit code unless explicitly requested.
+- Don't use deprecated APIs (`NavigationView`, single-param `.onChange`, etc.).
+- Don't generate App Icons or Launch Screens — these are designed manually.
+- Don't add lorem ipsum placeholder text. Ask for real copy or use realistic examples.
+- Don't auto-format the project unless asked.
+- Don't add AI attribution to commit messages, PRs, or code comments.
+
+## Project-specific notes
+
+> Add anything specific to this app: business rules, domain language, integrations, etc.
+> Examples:
+> - "All times are stored in UTC, displayed in user's local timezone."
+> - "Subscription state is the source of truth; never check IAP receipts directly."
+> - "API base URL is configured per scheme (Debug/Release/Staging)."
