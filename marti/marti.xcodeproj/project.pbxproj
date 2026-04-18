@@ -1,0 +1,643 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D15F674A2F94000000E22DE1 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D15F674C2F94000000E22DE1 /* Supabase */; };
+		D15F674B2F94000000E22DE1 /* MapboxMaps in Frameworks */ = {isa = PBXBuildFile; productRef = D15F674D2F94000000E22DE1 /* MapboxMaps */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D15F67182F92CE9400E22DE1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D15F67022F92CE9300E22DE1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D15F67092F92CE9300E22DE1;
+			remoteInfo = Marti;
+		};
+		D15F67222F92CE9400E22DE1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D15F67022F92CE9300E22DE1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D15F67092F92CE9300E22DE1;
+			remoteInfo = Marti;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		D15F670A2F92CE9300E22DE1 /* Marti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Marti.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D15F67172F92CE9400E22DE1 /* MartiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MartiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D15F67212F92CE9400E22DE1 /* MartiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MartiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D15F67372F93080400E22DE1 /* Exceptions for "Marti" folder in "Marti" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D15F67092F92CE9300E22DE1 /* Marti */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		D15F670C2F92CE9300E22DE1 /* Marti */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D15F67372F93080400E22DE1 /* Exceptions for "Marti" folder in "Marti" target */,
+			);
+			path = Marti;
+			sourceTree = "<group>";
+		};
+		D15F671A2F92CE9400E22DE1 /* MartiTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MartiTests;
+			sourceTree = "<group>";
+		};
+		D15F67242F92CE9400E22DE1 /* MartiUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MartiUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D15F67072F92CE9300E22DE1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D15F674A2F94000000E22DE1 /* Supabase in Frameworks */,
+				D15F674B2F94000000E22DE1 /* MapboxMaps in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D15F67142F92CE9400E22DE1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D15F671E2F92CE9400E22DE1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D15F67012F92CE9300E22DE1 = {
+			isa = PBXGroup;
+			children = (
+				D15F670C2F92CE9300E22DE1 /* Marti */,
+				D15F671A2F92CE9400E22DE1 /* MartiTests */,
+				D15F67242F92CE9400E22DE1 /* MartiUITests */,
+				D15F670B2F92CE9300E22DE1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D15F670B2F92CE9300E22DE1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D15F670A2F92CE9300E22DE1 /* Marti.app */,
+				D15F67172F92CE9400E22DE1 /* MartiTests.xctest */,
+				D15F67212F92CE9400E22DE1 /* MartiUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D15F67092F92CE9300E22DE1 /* Marti */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D15F672B2F92CE9400E22DE1 /* Build configuration list for PBXNativeTarget "Marti" */;
+			buildPhases = (
+				D15F67062F92CE9300E22DE1 /* Sources */,
+				D15F67072F92CE9300E22DE1 /* Frameworks */,
+				D15F67082F92CE9300E22DE1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D15F670C2F92CE9300E22DE1 /* Marti */,
+			);
+			name = Marti;
+			packageProductDependencies = (
+				D15F674C2F94000000E22DE1 /* Supabase */,
+				D15F674D2F94000000E22DE1 /* MapboxMaps */,
+			);
+			productName = Marti;
+			productReference = D15F670A2F92CE9300E22DE1 /* Marti.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D15F67162F92CE9400E22DE1 /* MartiTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D15F672E2F92CE9400E22DE1 /* Build configuration list for PBXNativeTarget "MartiTests" */;
+			buildPhases = (
+				D15F67132F92CE9400E22DE1 /* Sources */,
+				D15F67142F92CE9400E22DE1 /* Frameworks */,
+				D15F67152F92CE9400E22DE1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D15F67192F92CE9400E22DE1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D15F671A2F92CE9400E22DE1 /* MartiTests */,
+			);
+			name = MartiTests;
+			packageProductDependencies = (
+			);
+			productName = MartiTests;
+			productReference = D15F67172F92CE9400E22DE1 /* MartiTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D15F67202F92CE9400E22DE1 /* MartiUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D15F67312F92CE9400E22DE1 /* Build configuration list for PBXNativeTarget "MartiUITests" */;
+			buildPhases = (
+				D15F671D2F92CE9400E22DE1 /* Sources */,
+				D15F671E2F92CE9400E22DE1 /* Frameworks */,
+				D15F671F2F92CE9400E22DE1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D15F67232F92CE9400E22DE1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D15F67242F92CE9400E22DE1 /* MartiUITests */,
+			);
+			name = MartiUITests;
+			packageProductDependencies = (
+			);
+			productName = MartiUITests;
+			productReference = D15F67212F92CE9400E22DE1 /* MartiUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D15F67022F92CE9300E22DE1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					D15F67092F92CE9300E22DE1 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					D15F67162F92CE9400E22DE1 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = D15F67092F92CE9300E22DE1;
+					};
+					D15F67202F92CE9400E22DE1 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = D15F67092F92CE9300E22DE1;
+					};
+				};
+			};
+			buildConfigurationList = D15F67052F92CE9300E22DE1 /* Build configuration list for PBXProject "Marti" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D15F67012F92CE9300E22DE1;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D15F67342F93032C00E22DE1 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				D15F67352F9306BA00E22DE1 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = D15F670B2F92CE9300E22DE1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D15F67092F92CE9300E22DE1 /* Marti */,
+				D15F67162F92CE9400E22DE1 /* MartiTests */,
+				D15F67202F92CE9400E22DE1 /* MartiUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D15F67082F92CE9300E22DE1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D15F67152F92CE9400E22DE1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D15F671F2F92CE9400E22DE1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D15F67062F92CE9300E22DE1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D15F67132F92CE9400E22DE1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D15F671D2F92CE9400E22DE1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D15F67192F92CE9400E22DE1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D15F67092F92CE9300E22DE1 /* Marti */;
+			targetProxy = D15F67182F92CE9400E22DE1 /* PBXContainerItemProxy */;
+		};
+		D15F67232F92CE9400E22DE1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D15F67092F92CE9300E22DE1 /* Marti */;
+			targetProxy = D15F67222F92CE9400E22DE1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		D15F67292F92CE9400E22DE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = TWG8JGKXSA;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D15F672A2F92CE9400E22DE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = TWG8JGKXSA;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D15F672C2F92CE9400E22DE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TWG8JGKXSA;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Marti/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = so.Marti;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D15F672D2F92CE9400E22DE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TWG8JGKXSA;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Marti/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = so.Marti;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D15F672F2F92CE9400E22DE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TWG8JGKXSA;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = so.MartiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Marti.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Marti";
+			};
+			name = Debug;
+		};
+		D15F67302F92CE9400E22DE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TWG8JGKXSA;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = so.MartiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Marti.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Marti";
+			};
+			name = Release;
+		};
+		D15F67322F92CE9400E22DE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TWG8JGKXSA;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = so.MartiUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Marti;
+			};
+			name = Debug;
+		};
+		D15F67332F92CE9400E22DE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TWG8JGKXSA;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = so.MartiUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Marti;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D15F67052F92CE9300E22DE1 /* Build configuration list for PBXProject "Marti" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D15F67292F92CE9400E22DE1 /* Debug */,
+				D15F672A2F92CE9400E22DE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D15F672B2F92CE9400E22DE1 /* Build configuration list for PBXNativeTarget "Marti" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D15F672C2F92CE9400E22DE1 /* Debug */,
+				D15F672D2F92CE9400E22DE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D15F672E2F92CE9400E22DE1 /* Build configuration list for PBXNativeTarget "MartiTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D15F672F2F92CE9400E22DE1 /* Debug */,
+				D15F67302F92CE9400E22DE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D15F67312F92CE9400E22DE1 /* Build configuration list for PBXNativeTarget "MartiUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D15F67322F92CE9400E22DE1 /* Debug */,
+				D15F67332F92CE9400E22DE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D15F67342F93032C00E22DE1 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+		D15F67352F9306BA00E22DE1 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mapbox/mapbox-maps-ios";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D15F674C2F94000000E22DE1 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D15F67342F93032C00E22DE1 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		D15F674D2F94000000E22DE1 /* MapboxMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D15F67352F9306BA00E22DE1 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */;
+			productName = MapboxMaps;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = D15F67022F92CE9300E22DE1 /* Project object */;
+}
