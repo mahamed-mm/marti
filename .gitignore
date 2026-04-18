@@ -9,3 +9,33 @@
 # Claude Code
 .claude/settings.local.json
 .claude/*.log
+
+# Xcode — user-specific state
+xcuserdata/
+*.xcuserstate
+
+# Xcode — build output
+build/
+DerivedData/
+
+# Xcode — archives / binaries
+*.xcarchive
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager (Package.resolved is committed on purpose)
+.build/
+.swiftpm/
+
+# Playground-side products
+timeline.xctimeline
+playground.xcworkspace
+
+# Secrets
+.env
+.env.*
+*.secrets
+*.secrets.xcconfig
+*.local.xcconfig
+.netrc

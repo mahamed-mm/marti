@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>MBXAccessToken</key>
+	<string>pk.eyJ1IjoibW9hLW1tIiwiYSI6ImNtbzNrNHcwdzE1cjkyb3F3d2N4c2hxYjIifQ.GJOGGrHtlnAsrhK8A9d_XQ</string>
+	<key>SUPABASE_URL</key>
+	<string>https://qensrduiurqvvreuubqn.supabase.co</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>sb_publishable_gWWXniiZvYsEJraTMW-oBQ_ZY_095Al</string>
+</dict>
+</plist>
