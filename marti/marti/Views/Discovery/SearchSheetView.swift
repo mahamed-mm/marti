@@ -357,6 +357,10 @@ struct SearchSheetView: View {
             .foregroundStyle(Color.textTertiary)
     }
 
+    /// Resets all draft filter fields to their default values.
+    /// 
+    /// Specifically clears the selected city and dates, sets guests back to 1,
+    /// restores the price range to `priceFloor`/`priceCeiling`, and clears the destination query.
     private func clearAll() {
         draftCity = nil
         draftCheckIn = nil
@@ -367,6 +371,11 @@ struct SearchSheetView: View {
         destinationQuery = ""
     }
 
+    /// Applies the view's current draft filter values to the bound view model and then dismisses the sheet.
+    /// 
+    /// The applied `ListingFilter` is built from the draft city, check-in/check-out dates, guest count, and price range. The price slider values (dollars) are converted to cents and set to `nil` when they equal the configured floor/ceiling (i.e., no min/max). The current `destinationQuery` is referenced but not wired into the filter/search logic.
+    /// 
+    /// Side effects: calls `viewModel.applyFilter(_:)` with the constructed filter and invokes the view's dismiss action.
     private func apply() {
         let priceMin = draftMinDollars > Self.priceFloor ? draftMinDollars * 100 : nil
         let priceMax = draftMaxDollars < Self.priceCeiling ? draftMaxDollars * 100 : nil

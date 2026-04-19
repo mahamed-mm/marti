@@ -24,6 +24,10 @@ enum MapAnnotationItem: Identifiable, Equatable {
         }
     }
 
+    /// Compares two `MapAnnotationItem` values for equality.
+    /// 
+    /// When both items are `.single`, equality is true if their `listing.id` values match. When both are `.cluster`, equality is determined by the cluster group equality. Items of different cases are not equal.
+    /// - Returns: `true` if the two annotation items represent the same underlying listing or cluster group, `false` otherwise.
     static func == (lhs: MapAnnotationItem, rhs: MapAnnotationItem) -> Bool {
         switch (lhs, rhs) {
         case (.single(let l), .single(let r)):
@@ -183,7 +187,17 @@ struct ListingMapView: View {
     /// The Mapbox `Map` body plus its mapbox-specific + SwiftUI modifiers.
     /// Extracted into a helper so the compiler's type-inference doesn't trip
     /// on the combined closure depth (Map content + every camera / style /
-    /// trigger observer stacked in one builder).
+    /// Builds the map view and wires Mapbox event handlers to drive annotations, camera updates, and related UI state.
+    /// 
+    /// The returned view renders the map with current `annotationItems`, applies the app's map style and ornament layout, and hooks camera/style/load/tap/change events to:
+    /// - update visible-listing counts and recompute screen-space annotation clustering,
+    /// - maintain the pan-anchor used for the "Search this area" affordance,
+    /// - handle map loading failure,
+    /// - clear the selected pin when the user taps empty map space,
+    /// and react to listing-id changes and external "search this area" triggers.
+    /// - Parameters:
+    ///   - proxy: A `MapProxy` used for reading the map's camera state and interacting with the map runtime.
+    /// - Returns: A view containing the configured `Map` with annotations and attached lifecycle/event handlers.
     @ViewBuilder
     private func mapCore(proxy: MapProxy) -> some View {
         Map(viewport: $viewport) {
@@ -234,7 +248,11 @@ struct ListingMapView: View {
 
     /// Returns the `MapViewAnnotation` for a single pin or cluster. Split
     /// out of `mapCore(proxy:)` so both the outer modifier chain and the
-    /// inner annotation builder stay under SwiftUI's inference limit.
+    /// Creates a map annotation for the given item, rendering either a single listing pin or an aggregated cluster at the item's coordinate.
+    /// - Parameters:
+    ///   - item: A `MapAnnotationItem` representing either a single listing or a cluster group to render.
+    ///   - proxy: A `MapProxy` providing map context used by annotation interactions.
+    /// - Returns: A `MapContent` that displays a listing price pin for `.single` items or a price-cluster annotation for `.cluster` items, positioned at the item's coordinate.
     @MapContentBuilder
     private func annotationContent(for item: MapAnnotationItem, proxy: MapProxy) -> some MapContent {
         switch item {
@@ -294,7 +312,9 @@ struct ListingMapView: View {
     /// camera's coordinate bounds through the `MapProxy` and push into the
     /// ViewModel. The explicit `@MainActor` annotation keeps the capture of
     /// `proxy` + `viewModel` on the main actor under Swift 6 strict
-    /// concurrency.
+    /// Schedules a debounced update of which listings are visible in the current map camera bounds.
+    /// Cancels any in-flight debounce work and, after a short (120 ms) quiet period, reads the map's camera state and updates the view model with the computed coordinate bounds.
+    /// - Parameter proxy: The `MapProxy` used to access the underlying `Map` and its current camera state.
     private func scheduleVisibleListingsUpdate(proxy: MapProxy) {
         cameraDebounce?.cancel()
         cameraDebounce = Task { @MainActor in
@@ -307,7 +327,11 @@ struct ListingMapView: View {
 
     /// Resets the pan anchor to the current camera center and refreshes the
     /// ViewModel's visible-listing count against the current bounds. Fires
-    /// when the parent bumps `searchThisAreaTrigger` from a pill tap.
+    /// Re-anchors the map to the current camera center and refreshes the visible-listing set.
+    /// 
+    /// Updates the view's anchor center to the map's current camera center, clears the `hasPannedFromAnchor` flag if set, and requests `viewModel` to update visible listings for the current camera bounds.
+    /// - Parameters:
+    ///   - proxy: The `MapProxy` providing access to the underlying `Map` and its current camera state.
     private func handleSearchThisArea(proxy: MapProxy) {
         guard let map = proxy.map else { return }
         anchorCameraCenter = map.cameraState.center
@@ -319,7 +343,10 @@ struct ListingMapView: View {
     /// Flips `hasPannedFromAnchor` when the camera center drifts past
     /// `panThresholdDegrees` from `anchorCameraCenter`. Runs per camera
     /// frame alongside `scheduleVisibleListingsUpdate` — the work here is a
-    /// couple of subtractions, not bounds math, so no debounce is needed.
+    /// Updates the `hasPannedFromAnchor` flag by comparing the map camera's current center to the stored anchor center.
+    /// 
+    /// Compares the maximum of the absolute latitude and longitude differences to `panThresholdDegrees`; sets `hasPannedFromAnchor` to `true` when the drift is greater than or equal to the threshold, otherwise sets it to `false`. The property is updated only when the computed value differs from the current `hasPannedFromAnchor`.
+    /// - Parameter proxy: The `MapProxy` used to read the current map camera state.
     private func updatePanGate(proxy: MapProxy) {
         guard let map = proxy.map, let anchor = anchorCameraCenter else { return }
         let current = map.cameraState.center
@@ -345,7 +372,13 @@ struct ListingMapView: View {
     /// This is a parallel computation to `scheduleVisibleListingsUpdate` —
     /// it does not share its 120ms debounce. Grouping runs per camera frame
     /// so cluster pills split/merge while the user is mid-pinch rather than
-    /// only at rest; the work is bounded so this is cheap.
+    /// Updates the map annotation layer and the currently focused listing using the map's current camera and projection.
+    /// 
+    /// Projects the view model's listings into screen space, derives cluster/singleton annotation items from those projections,
+    /// and replaces `annotationItems` when the newly computed items differ. Also computes a camera-driven `focusedListingID`:
+    /// the nearest listing to the camera center only when that listing appears as an individual annotation (not when it is part of a cluster).
+    /// If the map is unavailable or there are no listings, clears the corresponding state as needed.
+    /// - Parameter proxy: The `MapProxy` used to access the underlying `Map` for projections and camera state.
     private func recomputeAnnotationLayout(proxy: MapProxy) {
         guard let map = proxy.map else { return }
         let listings = viewModel.listings
@@ -394,13 +427,22 @@ struct ListingMapView: View {
     /// each other into clusters. Uses a simple union-find over the n×n
     /// distance matrix — O(n²) but n is small (≤ ~50 in the worst case).
     /// Cluster ids are deterministic hashes of sorted member ids so they
-    /// don't jitter across renders.
+    /// Groups projected listings whose screen-space points lie within `radius` and produces stable annotation items.
+    /// - Parameters:
+    ///   - projections: An array of tuples pairing a `Listing` with its projected screen-space `CGPoint`.
+    ///   - radius: The maximum screen-space distance (in points) between two projections to consider them part of the same cluster.
+    /// - Returns: An array of `MapAnnotationItem` where each solitary listing becomes `.single(Listing)` and each group of close listings becomes `.cluster(PricePinClusterGroup)`. Cluster IDs, member ordering, and output order are deterministic: cluster IDs are derived from a stable hash of the sorted member UUIDs, the centroid is the arithmetic mean of member coordinates, and `minDollars` is the group's minimum `pricePerNight` divided by 100.
     private func groupProjections(
         _ projections: [(listing: Listing, point: CGPoint)],
         radius: CGFloat
     ) -> [MapAnnotationItem] {
         var parent = Array(0..<projections.count)
 
+        /// Finds the representative root of the disjoint-set element at the given index and compresses its path.
+        /// 
+        /// This updates the `parent` array so all traversed nodes point directly to the root (path compression), reducing future lookup time.
+        /// - Parameter i: The index of the element whose set representative should be found.
+        /// - Returns: The root index for the set containing `i`.
         func find(_ i: Int) -> Int {
             var root = i
             while parent[root] != root { root = parent[root] }
@@ -413,6 +455,11 @@ struct ListingMapView: View {
             return root
         }
 
+        /// Merges the disjoint-set containing `a` into the set containing `b`.
+        /// - Parameters:
+        ///   - a: Index of the first element.
+        ///   - b: Index of the second element.
+        /// After calling this, both indices will share the same root; if they already belong to the same set, the call has no effect.
         func union(_ a: Int, _ b: Int) {
             let rootA = find(a), rootB = find(b)
             if rootA != rootB { parent[rootA] = rootB }
@@ -472,7 +519,10 @@ struct ListingMapView: View {
 
     /// Zooms the camera onto a cluster's centroid so the member pins split
     /// apart. Increment is bounded so a tap at max zoom is a no-op rather
-    /// than overshooting into street-level detail.
+    /// Animates the map camera to the cluster's centroid and zooms in to help resolve the cluster.
+    /// - Parameters:
+    ///   - group: The cluster group whose centroid will be used as the target camera center.
+    ///   - proxy: The map proxy used to read the current camera state.
     private func handleClusterTap(group: PricePinClusterGroup, proxy: MapProxy) {
         let currentZoom = proxy.map?.cameraState.zoom ?? 12
         let targetZoom = min(currentZoom + clusterTapZoomStep, 20)
@@ -489,7 +539,9 @@ struct ListingMapView: View {
     /// attention-ordered hierarchy: selected floats above saved, saved above
     /// focused, everything else at the base layer. Applied per-annotation
     /// so even when clusters aren't formed (e.g. two pins just outside the
-    /// 44pt radius) the visible pin is the one the user cares about.
+    /// Determines the drawing z-index priority for a listing pin based on selection, saved, and focus state.
+    /// - Parameter listing: The listing to evaluate.
+    /// - Returns: `3` if the listing is selected, `2` if saved (and not selected), `1` if focused (and not selected/saved), `0` otherwise.
     private func pinZIndex(for listing: Listing) -> Double {
         if viewModel.selectedPinID == listing.id                    { return 3 }
         if viewModel.savedListingIDs.contains(listing.id)           { return 2 }

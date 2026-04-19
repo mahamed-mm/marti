@@ -167,7 +167,10 @@ extension View {
     /// Applies a canonical `Shadow` token. Labeled as `token:` to avoid
     /// colliding with SwiftUI's own `.shadow(_ style:radius:…)` overload.
     /// Use in place of inline `.shadow(color:radius:x:y:)` calls so
-    /// elevation stays consistent.
+    /// Applies a canonical, tokenized shadow to the view.
+    /// - Parameters:
+    ///   - token: The `Shadow` token that selects a predefined shadow style (opacity, radius, and vertical offset).
+    /// - Returns: The view with the shadow specified by the token applied.
     func shadow(token: Shadow) -> some View {
         shadow(color: Color.black.opacity(token.opacity), radius: token.radius, x: 0, y: token.yOffset)
     }
@@ -181,7 +184,10 @@ extension View {
     /// save heart, verified badge, close-button pair on the selected-listing
     /// card. Caller places a glyph (e.g. `Image(systemName:)`) inside and
     /// supplies the visible disc diameter; outer hit-target framing stays at
-    /// the callsite.
+    /// Renders the view as a circular glassy disc of the specified diameter.
+    /// - Parameters:
+    ///   - diameter: The diameter of the circular disc in points.
+    /// - Returns: A view sized to `diameter`, presented as a circular, material-filled disc with a subtle white outline and the `glassDisc` shadow applied.
     func glassDisc(diameter: CGFloat) -> some View {
         self
             .frame(width: diameter, height: diameter)
@@ -198,7 +204,10 @@ extension View {
     /// `.ultraThinMaterial` fill with a soft `dividerLine` hairline and the
     /// `.island` shadow, clipped to the provided shape. Used by floating map
     /// chrome — header pill, circular icon button, "Search this area" pill,
-    /// and the map listings carousel wrapper.
+    /// Applies a material-filled background, a faint hairline stroke, and the "island" shadow using the provided shape.
+    /// - Parameters:
+    ///   - shape: An insettable shape used to draw the background fill and hairline stroke.
+    /// - Returns: A view with the provided shape filled with ultra-thin material, overlaid with a subtle divider stroke, and rendered with the island shadow.
     func floatingIslandBackground<S: InsettableShape>(_ shape: S) -> some View {
         self
             .background(shape.fill(.ultraThinMaterial))

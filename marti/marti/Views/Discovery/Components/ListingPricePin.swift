@@ -64,7 +64,11 @@ struct ListingPricePin: View {
     }
 
     /// Pure function so unit tests can assert the VoiceOver copy without
-    /// spinning up a view hierarchy.
+    /// Constructs the accessibility label for a listing's nightly price, including saved state.
+    /// - Parameters:
+    ///   - dollars: The nightly price in whole dollars.
+    ///   - isSaved: `true` if the listing is saved by the user; otherwise `false`.
+    /// - Returns: A localized-friendly accessibility string in the form "`Saved listing for $<dollars> per night`" when saved, or "`Listing for $<dollars> per night`" otherwise.
     nonisolated static func accessibilityLabel(dollars: Int, isSaved: Bool) -> String {
         let prefix = isSaved ? "Saved listing" : "Listing"
         return "\(prefix) for $\(dollars) per night"

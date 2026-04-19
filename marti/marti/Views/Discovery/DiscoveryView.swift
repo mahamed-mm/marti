@@ -216,6 +216,9 @@ struct DiscoveryView: View {
         .sensoryFeedback(.impact(weight: .light), trigger: searchThisAreaTrigger)
     }
 
+    /// Signals the map to perform a "search this area" using the current map bounds.
+    /// 
+    /// Updates the view's search trigger so observers (e.g., the map view) will refresh listings for the currently visible region.
     private func searchThisArea() {
         searchThisAreaTrigger = UUID()
     }
