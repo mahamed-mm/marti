@@ -218,7 +218,9 @@ struct DiscoveryView: View {
 
     /// Signals the map to perform a "search this area" using the current map bounds.
     /// 
-    /// Updates the view's search trigger so observers (e.g., the map view) will refresh listings for the currently visible region.
+    /// Signals the map to refresh listings for the current visible region by updating the `searchThisAreaTrigger`.
+    /// 
+    /// This causes observers (e.g., `ListingMapView`) to perform a search using the map's current camera bounds.
     private func searchThisArea() {
         searchThisAreaTrigger = UUID()
     }

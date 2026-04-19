@@ -348,7 +348,9 @@ struct SearchSheetView: View {
             .accessibilityLabel("Search with these filters")
     }
 
-    // MARK: - Helpers
+    /// Creates a caption-styled, tertiary-colored label for section headings.
+    /// - Parameter text: The string to display in the label.
+    /// - Returns: A view displaying `text` using the app's caption font in bold, with 0.5 tracking and tertiary foreground styling.
 
     private func label(_ text: String) -> some View {
         Text(text)
@@ -360,7 +362,10 @@ struct SearchSheetView: View {
     /// Resets all draft filter fields to their default values.
     /// 
     /// Specifically clears the selected city and dates, sets guests back to 1,
-    /// restores the price range to `priceFloor`/`priceCeiling`, and clears the destination query.
+    /// Resets all draft filter fields to their default state.
+    /// 
+    /// Clears the selected city and destination query, clears check-in/check-out dates,
+    /// sets guest count to 1, and restores the price sliders to the configured floor and ceiling.
     private func clearAll() {
         draftCity = nil
         draftCheckIn = nil
@@ -375,7 +380,9 @@ struct SearchSheetView: View {
     /// 
     /// The applied `ListingFilter` is built from the draft city, check-in/check-out dates, guest count, and price range. The price slider values (dollars) are converted to cents and set to `nil` when they equal the configured floor/ceiling (i.e., no min/max). The current `destinationQuery` is referenced but not wired into the filter/search logic.
     /// 
-    /// Side effects: calls `viewModel.applyFilter(_:)` with the constructed filter and invokes the view's dismiss action.
+    /// Applies the current draft filter values to the bound view model and closes the sheet.
+    /// 
+    /// Constructs a `ListingFilter` from the draft state and passes it to `viewModel.applyFilter(_:)`, then dismisses the sheet. Price slider dollar values are converted to cents and mapped to `nil` when they represent the unfiltered bounds (priceMin -> `nil` when equal to `priceFloor`; priceMax -> `nil` when equal to `priceCeiling`). The draft `destinationQuery` is read and intentionally not included in the applied filter (not wired to search yet).
     private func apply() {
         let priceMin = draftMinDollars > Self.priceFloor ? draftMinDollars * 100 : nil
         let priceMax = draftMaxDollars < Self.priceCeiling ? draftMaxDollars * 100 : nil

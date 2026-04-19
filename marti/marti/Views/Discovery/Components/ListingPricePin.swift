@@ -68,7 +68,11 @@ struct ListingPricePin: View {
     /// - Parameters:
     ///   - dollars: The nightly price in whole dollars.
     ///   - isSaved: `true` if the listing is saved by the user; otherwise `false`.
-    /// - Returns: A localized-friendly accessibility string in the form "`Saved listing for $<dollars> per night`" when saved, or "`Listing for $<dollars> per night`" otherwise.
+    /// Builds the VoiceOver label describing a listing's nightly price and saved state.
+    /// - Parameters:
+    ///   - dollars: The nightly price in whole dollars.
+    ///   - isSaved: `true` if the listing is saved, `false` otherwise.
+    /// - Returns: A string like "Listing for $123 per night" or "Saved listing for $123 per night".
     nonisolated static func accessibilityLabel(dollars: Int, isSaved: Bool) -> String {
         let prefix = isSaved ? "Saved listing" : "Listing"
         return "\(prefix) for $\(dollars) per night"

@@ -100,7 +100,9 @@ final class ListingDiscoveryViewModel {
 
     /// Returns the human-readable display name for a given city.
     /// - Parameter city: The `City` enum value to convert to a display name.
-    /// - Returns: The localized display name for the city (e.g., `"Mogadishu"`, `"Hargeisa"`).
+    /// Maps a `City` value to its human-readable display name.
+    /// - Parameter city: The city enum value to map.
+    /// - Returns: The display name for the given city (e.g., "Mogadishu", "Hargeisa").
     private static func cityName(_ city: City) -> String {
         switch city {
         case .mogadishu: "Mogadishu"
@@ -313,7 +315,8 @@ final class ListingDiscoveryViewModel {
     /// Selects the map pin corresponding to the given listing identifier.
     /// - Parameters:
     /// Selects the map pin corresponding to the given listing ID or clears the selection.
-    /// - Parameter id: The listing's `UUID` to select, or `nil` to clear the current selection.
+    /// Selects the map pin corresponding to the given listing identifier.
+    /// - Parameter id: The listing `UUID` to select, or `nil` to clear the current selection.
     func selectPin(_ id: UUID?) {
         selectedPinID = id
     }
@@ -322,7 +325,9 @@ final class ListingDiscoveryViewModel {
     /// map-camera bounds. Called from `ListingMapView` on camera-idle so the
     /// Updates the live map-visible listing count by counting listings whose coordinates fall inside the provided map bounds.
     /// - Parameter bounds: The map coordinate bounds used to determine which listings are considered in view.
-    /// This method updates `visibleListingCount` only when the newly computed count differs from the current value.
+    /// Recalculates and updates the number of listings whose coordinates fall within the provided map bounds.
+    /// - Parameters:
+    ///   - bounds: The map bounds used to determine which listings are currently visible. The view model's `visibleListingCount` is updated only if the computed count differs from the current value.
     func updateVisibleListings(bounds: CoordinateBounds) {
         let count = listings.reduce(into: 0) { acc, listing in
             let coord = CLLocationCoordinate2D(latitude: listing.latitude,
@@ -338,7 +343,9 @@ final class ListingDiscoveryViewModel {
     /// Persists across app launches via `UserDefaults` — trust messaging is
     /// Marks the discovery fee tag as dismissed and persists that state to UserDefaults.
     /// 
-    /// This sets `feeTagDismissed` to `true` and writes `true` into `UserDefaults` using `Self.feeTagDismissedKey`.
+    /// Marks the discovery fee tag as dismissed and persists that state to `UserDefaults`.
+    /// 
+    /// The dismissed flag is stored under `Self.feeTagDismissedKey`.
     func dismissFeeTag() {
         feeTagDismissed = true
         userDefaults.set(true, forKey: Self.feeTagDismissedKey)

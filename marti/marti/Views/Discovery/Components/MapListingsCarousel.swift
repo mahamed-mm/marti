@@ -79,7 +79,11 @@ struct MapListingsCarousel: View {
     /// - Parameters:
     ///   - listing: The `Listing` to display in the card.
     ///   - width: The card's width in points.
-    /// - Returns: A view containing the listing's map-preview card with save-toggle handling, rounded corners, shadow, and an `.id` matching the listing so it participates in scroll-target snapping.
+    /// Creates the per-item card view used inside the carousel.
+    /// - Parameters:
+    ///   - listing: The `Listing` to display in the card.
+    ///   - width: The width to apply to the card.
+    /// - Returns: A view displaying the listing as a map-preview card sized to the provided width and the carousel's fixed card height; the card is tappable to select, reflects saved state and supports save toggling, and is identifiable for scroll-target alignment.
 
     private func cardContainer(for listing: Listing, width: CGFloat) -> some View {
         ListingCardView(
@@ -102,7 +106,10 @@ struct MapListingsCarousel: View {
     /// selection for every intermediate card. With `.scrollTargetBehavior(
     /// Handles snap-aligned visibility changes by debouncing and invoking `onSelect` for the newly centered listing.
     /// Cancels any in-flight visibility task, waits 200 milliseconds to allow snapping to stabilize, and then calls `onSelect` with the first visible id unless the task was cancelled or the id is already selected.
-    /// - Parameter visibleIDs: The ordered list of currently aligned/visible listing ids; the first element is treated as the centered card.
+    /// Debounces visibility-driven selection and emits `onSelect` for the first visible listing.
+    /// 
+    /// If `visibleIDs` is empty or its first element equals the current `selectedID`, the function returns immediately. Otherwise any pending visibility task is cancelled and a new task is scheduled that waits 200 milliseconds; if not cancelled, it calls `onSelect` with the first visible id.
+    /// - Parameter visibleIDs: The ordered list of listing IDs reported as visible by the scroll-target visibility change; the first element is treated as the centered/aligned card.
     private func handleVisibilityChange(_ visibleIDs: [UUID]) {
         guard let first = visibleIDs.first else { return }
         if first == selectedID { return }
@@ -123,7 +130,10 @@ struct MapListingsCarousel: View {
     ///
     — If there are no listings, does nothing.
     /// - Parameters:
-    ///   - edge: The accessibility scroll edge indicating direction; `.leading` or `.top` moves selection to the previous listing, `.trailing` or `.bottom` moves to the next listing.
+    /// Moves the current selection one step in the direction indicated by a VoiceOver accessibility scroll.
+    ///
+    /// - Parameters:
+    ///   - edge: The scroll direction provided by the accessibility action. `.leading` or `.top` moves selection to the previous listing; `.trailing` or `.bottom` moves selection to the next listing. No action is taken when the listings array is empty, when the computed next index equals the current index, or when already at the list bounds. Selection changes are emitted via `onSelect`.
     private func handleAccessibilityScroll(_ edge: Edge) {
         guard !listings.isEmpty else { return }
         let currentIndex = selectedID.flatMap { id in listings.firstIndex(where: { $0.id == id }) }
@@ -148,7 +158,8 @@ struct MapListingsCarousel: View {
 ///   - price: The price per night.
 ///   - rating: The average rating to assign (`nil` for no rating). Defaults to `4.8`.
 ///   - reviewCount: The number of reviews. Defaults to `24`.
-/// - Returns: A `Listing` instance with the given `title`, `price` mapped to `pricePerNight`, `rating` mapped to `averageRating`, and `reviewCount`.
+/// Creates a sample `Listing` populated with placeholder data for use in SwiftUI previews.
+/// - Returns: A `Listing` populated with the provided `title`, `price`, optional `rating`, and `reviewCount`, with other fields set to fixed placeholder values suitable for UI previews.
 private func carouselPreviewListing(
     title: String,
     price: Int,

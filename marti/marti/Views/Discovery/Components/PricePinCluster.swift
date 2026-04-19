@@ -15,7 +15,10 @@ struct PricePinClusterGroup: Identifiable, Equatable {
 
     /// Determines whether two `PricePinClusterGroup` instances represent the same cluster for rendering purposes.
     /// Compares `id`, `memberIDs`, `centroid.latitude`, `centroid.longitude`, and `minDollars`.
-    /// - Returns: `true` if all compared properties are equal, `false` otherwise.
+    /// Indicates whether two PricePinClusterGroup instances represent the same cluster.
+    /// 
+    /// Two groups are considered equal when their `id`, `memberIDs`, `centroid.latitude`, `centroid.longitude`, and `minDollars` are all exactly equal.
+    /// - Returns: `true` if all listed properties are equal, `false` otherwise.
     static func == (lhs: PricePinClusterGroup, rhs: PricePinClusterGroup) -> Bool {
         lhs.id == rhs.id
             && lhs.memberIDs == rhs.memberIDs
@@ -69,7 +72,11 @@ struct PricePinCluster: View {
     /// - Parameters:
     ///   - count: The number of listings in the cluster.
     ///   - minDollars: The minimum displayed price for the cluster.
-    /// - Returns: A string for VoiceOver like "Cluster of {count} home(s) starting at ${minDollars}. Double-tap to zoom in."
+    /// Produces a VoiceOver label describing a cluster's item count and starting price.
+    /// - Parameters:
+    ///   - count: Number of listings in the cluster.
+    ///   - minDollars: Starting price in whole dollars.
+    /// - Returns: A string such as "Cluster of 3 homes starting at $250000. Double-tap to zoom in."
     nonisolated static func accessibilityLabel(count: Int, minDollars: Int) -> String {
         let noun = count == 1 ? "home" : "homes"
         return "Cluster of \(count) \(noun) starting at $\(minDollars). Double-tap to zoom in."

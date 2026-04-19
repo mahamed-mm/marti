@@ -170,7 +170,10 @@ extension View {
     /// Applies a canonical, tokenized shadow to the view.
     /// - Parameters:
     ///   - token: The `Shadow` token that selects a predefined shadow style (opacity, radius, and vertical offset).
-    /// - Returns: The view with the shadow specified by the token applied.
+    /// Applies a canonical shadow style to the view using the provided `Shadow` token.
+    /// - Parameters:
+    ///   - token: The shadow token that selects opacity, radius, and vertical offset.
+    /// - Returns: The view with the specified shadow applied.
     func shadow(token: Shadow) -> some View {
         shadow(color: Color.black.opacity(token.opacity), radius: token.radius, x: 0, y: token.yOffset)
     }
@@ -187,7 +190,9 @@ extension View {
     /// Renders the view as a circular glassy disc of the specified diameter.
     /// - Parameters:
     ///   - diameter: The diameter of the circular disc in points.
-    /// - Returns: A view sized to `diameter`, presented as a circular, material-filled disc with a subtle white outline and the `glassDisc` shadow applied.
+    /// Wraps the view in a circular ultra-thin material background with a subtle white hairline stroke and the `glassDisc` shadow.
+    /// - Parameter diameter: The diameter, in points, of the circular framing.
+    /// - Returns: A view framed to `diameter × diameter`, filled with `.ultraThinMaterial`, overlaid with a faint white stroke, and rendered with the `glassDisc` shadow.
     func glassDisc(diameter: CGFloat) -> some View {
         self
             .frame(width: diameter, height: diameter)
@@ -207,7 +212,10 @@ extension View {
     /// Applies a material-filled background, a faint hairline stroke, and the "island" shadow using the provided shape.
     /// - Parameters:
     ///   - shape: An insettable shape used to draw the background fill and hairline stroke.
-    /// - Returns: A view with the provided shape filled with ultra-thin material, overlaid with a subtle divider stroke, and rendered with the island shadow.
+    /// Applies a material background, a subtle hairline edge, and the island elevation shadow using the provided insettable shape.
+    /// - Parameters:
+    ///   - shape: The insettable shape used to fill the background with `.ultraThinMaterial` and to draw the overlay stroke.
+    /// - Returns: A view with the shape-filled `.ultraThinMaterial` background, a 0.5pt `dividerLine` stroke at 25% opacity, and the `island` shadow applied.
     func floatingIslandBackground<S: InsettableShape>(_ shape: S) -> some View {
         self
             .background(shape.fill(.ultraThinMaterial))
