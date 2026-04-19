@@ -37,7 +37,7 @@ struct ListingCardView: View {
                 photo(height: 200)
 
                 if listing.isVerified {
-                    VerifiedBadgeView()
+                    VerifiedBadgeView(variant: .icon)
                         .padding(Spacing.md)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
