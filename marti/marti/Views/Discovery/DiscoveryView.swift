@@ -181,6 +181,9 @@ struct DiscoveryView: View {
         }
     }
 
+    /// Provides the display title for a city chip.
+    /// - Parameter city: The city to convert, or `nil` to represent the "All" option.
+    /// - Returns: The localized title string for the given city (`"All"` for `nil`, `"Mogadishu"`, or `"Hargeisa"`).
     private func title(for city: City?) -> String {
         switch city {
         case nil:           return "All"

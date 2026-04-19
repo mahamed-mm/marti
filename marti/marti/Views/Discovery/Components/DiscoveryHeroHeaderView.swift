@@ -76,6 +76,12 @@ struct DiscoveryHeroHeaderView: View {
         .accessibilityHidden(true) // Search not functional in v1
     }
 
+    /// Builds a circular icon button showing an SF Symbol and applying the header button styling.
+    /// - Parameters:
+    ///   - systemImage: The name of the SF Symbol to display.
+    ///   - label: Accessibility label spoken by assistive technologies.
+    ///   - action: Closure executed when the button is tapped.
+    /// - Returns: A view containing the styled circular icon button with the provided accessibility label.
     private func iconButton(systemImage: String, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
@@ -117,6 +123,11 @@ struct DiscoveryHeroHeaderView: View {
         return parts.isEmpty ? "Search Mogadishu, Hargeisa…" : parts.joined(separator: " · ")
     }
 
+    /// Formats a check-in/check-out pair as a compact date range.
+    /// - Parameters:
+    ///   - checkIn: The start date of the range; if `nil`, the function returns `nil`.
+    ///   - checkOut: The end date of the range; if `nil`, the function returns `nil`.
+    /// - Returns: A string in the form `"MMM d–MMM d"` (e.g. `"Jun 4–Jun 6"`) representing the range, or `nil` if either date is missing.
     private static func formattedDateRange(checkIn: Date?, checkOut: Date?) -> String? {
         guard let checkIn, let checkOut else { return nil }
         let fmt = DateFormatter()
