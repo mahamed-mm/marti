@@ -101,7 +101,14 @@ struct ListingCardView: View {
         VStack(alignment: .leading, spacing: 0) {
             photo()
                 .frame(width: Spacing.railCardWidth, height: Spacing.railCardWidth)
-                .clipShape(RoundedRectangle(cornerRadius: Radius.lg))
+                .clipShape(RoundedRectangle(cornerRadius: Radius.md))
+                // 1pt hairline keeps dark photos from bleeding into canvas at
+                // the corner radius. strokeBorder (not stroke) so the line sits
+                // on the inside of the clipped path and doesn't get cut off.
+                .overlay(
+                    RoundedRectangle(cornerRadius: Radius.md)
+                        .strokeBorder(Color.surfaceStroke, lineWidth: 1)
+                )
                 .overlay(alignment: .top) { photoOverlay }
 
             Text(listing.title)

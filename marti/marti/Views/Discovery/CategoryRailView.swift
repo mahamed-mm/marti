@@ -34,7 +34,7 @@ struct CategoryRailView: View {
     let onSeeAll: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
+        VStack(alignment: .leading, spacing: Spacing.base) {
             header
             railScroll
         }

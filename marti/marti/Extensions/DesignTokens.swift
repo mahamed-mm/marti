@@ -5,8 +5,18 @@ import SwiftUI
 extension Color {
     static let canvas             = Color(red: 0x01/255, green: 0x09/255, blue: 0x13/255)
     static let surfaceDefault     = Color(red: 0x13/255, green: 0x1D/255, blue: 0x2B/255)
-    static let surfaceElevated    = Color(red: 0x24/255, green: 0x33/255, blue: 0x46/255)
+    static let surfaceElevated    = Color(red: 0x1F/255, green: 0x2D/255, blue: 0x42/255)
     static let surfaceHighlight   = Color(red: 0x1A/255, green: 0x2A/255, blue: 0x3D/255)
+
+    /// 1pt top-edge highlight used on the hero search capsule and on `full`
+    /// listing cards — gives a single glassy sheen so elevated surfaces read as
+    /// physical planes in dark mode rather than flat rectangles.
+    static let surfaceGlass       = Color.white.opacity(0.06)
+
+    /// 1pt hairline used at the corner boundary between a photo and canvas
+    /// (rail-card image overlay). Prevents dark images from merging into the
+    /// canvas at the corner radius.
+    static let surfaceStroke      = Color.white.opacity(0.08)
 
     static let textPrimary        = Color.white
     static let textSecondary      = Color(red: 0xBD/255, green: 0xC4/255, blue: 0xCB/255)
@@ -81,8 +91,17 @@ enum Radius {
 // scales these tokens. Designed sizes stay close to the DESIGN.md scale at the
 // default Dynamic Type setting (small offsets: 24→22, 16→17, 14→13, 12→12).
 extension Font {
-    static let martiHeading3   = Font.system(.title2,    weight: .bold)
-    static let martiHeading4   = Font.system(.title3,    weight: .bold)
+    /// Editorial display face used for the Discovery hero title and any
+    /// destination-led screen. Rounded + black gives a tactile identity read
+    /// without adding a custom font file. Anchors to `.largeTitle` so Dynamic
+    /// Type scales up to AX5.
+    static let martiDisplay    = Font.system(.largeTitle, design: .rounded, weight: .black)
+
+    /// Section headers (e.g. rail titles) — rounded design with bold weight so
+    /// they read as titles, not labels. Body/meta stays on default SF.
+    static let martiHeading3   = Font.system(.title2,    design: .rounded, weight: .bold)
+    static let martiHeading4   = Font.system(.title3,    design: .rounded, weight: .bold)
+
     static let martiHeading5   = Font.system(.headline,  weight: .bold)
     static let martiBody       = Font.system(.body,      weight: .regular)
     static let martiFootnote   = Font.system(.footnote,  weight: .regular)
