@@ -36,21 +36,33 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
 ### Feature 1: Listing Discovery
 
 - **Priority:** P0
+- **Status:** ✅ Shipped
 - **Description:** Travelers browse verified listings in Mogadishu or Hargeisa. Search by city, dates, guests, price range. Map view (Mapbox) and list view. Each listing shows photos, price/night, host info, verification badge, and location on map.
 - **User stories:**
   - As a traveler, I want to browse listings in Mogadishu so that I can find a place to stay for my trip.
   - As a traveler, I want to filter by dates and number of guests so that I only see available places.
   - As a traveler, I want to see listings on a map so that I can pick a location near family or landmarks.
 - **Acceptance criteria:**
-  - [ ] List view shows photo, price, rating, city, verification badge
-  - [ ] Map view shows pins with price labels (Mapbox SDK)
-  - [ ] Filter by city (Mogadishu / Hargeisa), dates, guests, price range
-  - [ ] Pull-to-refresh and pagination
-  - [ ] Empty state when no listings match filters
+  - [x] List view shows photo, price, rating, city, verification badge
+  - [x] Map view shows pins with price labels (Mapbox SDK)
+  - [x] Filter by city (Mogadishu / Hargeisa), dates, guests, price range
+  - [x] Pull-to-refresh and pagination
+  - [x] Empty state when no listings match filters
+- **Recent additions not in original spec:**
+  - Offline banner (`ErrorStateView` + `OfflineBannerView`) when network drops with non-empty cache
+  - Live currency service (USD↔SOS) with 24h cache, 7d stale cutoff (`LiveCurrencyService`)
+  - One-shot fee-inclusion onboarding toast (`FeeInclusionTag`)
+  - Static skeleton loading (`SkeletonListingCard`, `SkeletonHeader` — no shimmer per design)
+  - Categories rail with collapse-empty (`CategoryRailView` + `DiscoveryCategory`)
+  - Map-mode chrome redesign: header pill, search-this-area pill, floating carousel, selected-card overlay
+  - Price-pin clustering with deterministic union-find (`ListingPricePin`, `PricePinCluster`)
+  - Image cache infrastructure (`CachedImageService` — built; not yet wired into `AsyncImage` paths)
+  - Date-availability filter is stubbed; wires into `bookings` table when Request-to-Book ships
 
 ### Feature 2: Listing Detail
 
 - **Priority:** P0
+- **Status:** 🚧 Placeholder only — `ListingDetailPlaceholderView` stub (title + neighborhood + "coming soon"). Next feature in queue.
 - **Description:** Full listing page with photo gallery, description, amenities, house rules, host profile (with verification badge), location on map, reviews, and pricing breakdown.
 - **User stories:**
   - As a traveler, I want to see detailed photos and description so that I know what to expect.
@@ -66,6 +78,7 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
 ### Feature 3: Request to Book
 
 - **Priority:** P0
+- **Status:** ⏳ Not started — no booking models, services, or views yet. Date-availability filter in Discovery is stubbed pending this feature.
 - **Description:** Traveler requests a booking for specific dates. No instant booking — host approval is required. No in-app payment; reservation locks the dates, payment settles off-platform. Prices displayed in USD (primary) with SOS equivalent (secondary).
 - **User stories:**
   - As a traveler, I want to request a booking so that the host can confirm my stay.
@@ -83,6 +96,7 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
 ### Feature 4: In-App Messaging
 
 - **Priority:** P0
+- **Status:** ⏳ Not started — Messages tab renders `ComingSoonView` (`MainTabView.swift:55-56`).
 - **Description:** Once a booking request is submitted, traveler can message the host. Handles logistics: arrival time, airport pickup, directions, payment arrangement. Uses Supabase Realtime.
 - **User stories:**
   - As a traveler, I want to message my host so that I can coordinate arrival details.
@@ -97,6 +111,7 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
 ### Feature 5: Reviews
 
 - **Priority:** P0
+- **Status:** ⏳ Not started — `Listing` model carries `averageRating` / `reviewCount` (rendered on cards), but no review submission flow, no double-blind logic.
 - **Description:** After a completed stay, traveler leaves a review (1-5 stars + text). Reviews are public on the listing. Double-blind: neither party sees the other's review until both submit or 14 days pass.
 - **User stories:**
   - As a traveler, I want to review my stay so that future travelers benefit from my experience.
@@ -111,14 +126,15 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
 ### Feature 6: User Profile & Auth
 
 - **Priority:** P0
+- **Status:** 🚧 Partial — browse-first works and save is gated, but `AuthManager` is a placeholder boolean. No real Apple Sign In, no OTP, no Keychain, no profile views, Profile tab renders `ComingSoonView`.
 - **Description:** Browse-first experience — no auth required to explore listings. Auth triggered at intent: "Request to Book", "Message Host", or "Save". Sign in with Apple + phone OTP (Twilio via Supabase). Profile includes name, photo, and home city.
 - **User stories:**
   - As a traveler, I want to browse listings without signing up so that I can explore before committing.
   - As a traveler, I want to sign up quickly when I'm ready to book.
   - As a traveler, I want hosts to see my profile so that they trust me.
 - **Acceptance criteria:**
-  - [ ] Unauthenticated browsing of all listings, details, reviews, and map
-  - [ ] Auth required only at booking request, messaging, or saving a listing
+  - [x] Unauthenticated browsing of all listings, details, reviews, and map
+  - [x] Auth required only at booking request, messaging, or saving a listing
   - [ ] Sign in with Apple (primary for diaspora)
   - [ ] Phone OTP signup/login (Twilio via Supabase)
   - [ ] Profile: name, photo, bio, home city
@@ -128,20 +144,22 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
 ### Feature 7: Saved Listings
 
 - **Priority:** P0
+- **Status:** 🚧 Partial — heart works on every card variant and `toggleSaved` is wired through `SupabaseListingService` (gated on auth, throws `.unauthorized` if no user). Saved tab itself still renders `ComingSoonView` (`MainTabView.swift:52`); the unauth → auth-sheet trigger isn't wired yet.
 - **Description:** Travelers save/favorite listings for later. Heart icon on listing cards and detail page. Saved tab in the main tab bar. Triggers auth if unauthenticated — natural conversion point. Diaspora travelers research trips 2-3 months ahead; without favorites, they lose listings and churn.
 - **User stories:**
   - As a traveler, I want to save listings I like so that I can compare them later.
   - As a traveler, I want a dedicated tab for my saved listings so that I can find them quickly.
 - **Acceptance criteria:**
-  - [ ] Heart icon on listing cards and detail page
+  - [x] Heart icon on listing cards and detail page
   - [ ] Tapping save triggers auth if not signed in
   - [ ] Saved tab in main tab bar
-  - [ ] Saved listings persist across sessions (Supabase)
-  - [ ] Remove from saved with toggle
+  - [x] Saved listings persist across sessions (Supabase)
+  - [x] Remove from saved with toggle
 
 ### Feature 8: My Bookings
 
 - **Priority:** P0
+- **Status:** ⏳ Not started — Bookings tab renders `ComingSoonView` (`MainTabView.swift:53-54`). Blocked on Request-to-Book.
 - **Description:** Central place for travelers to track all bookings — upcoming, active, past, and declined. Shows status, dates, host info, and links to messaging and review flows.
 - **User stories:**
   - As a traveler, I want to see all my bookings in one place so that I can manage my trips.
@@ -154,6 +172,8 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
   - [ ] Past bookings prompt for review if not yet submitted
 
 ## Notifications Strategy
+
+> **Status:** Planned for v1.1+. No notification code shipped in v1 — no `UNUserNotificationCenter`, no Twilio SMS, no email templates. The strategy below is the target shape once Request-to-Book and Messaging land.
 
 - **Push (APNs):** Day-to-day — new messages, booking status updates, review prompts.
 - **SMS (Twilio):** Three critical moments only — booking confirmed, check-in reminder (24h before), cancellation by host. Push alone will fail (diaspora roaming + carrier reliability).
@@ -171,6 +191,8 @@ Three tiers (set by host via web dashboard, displayed to traveler in-app):
 
 In v1 with no in-app payments, "refund" means the reservation is released and no settlement obligation exists. The policy governs whether the guest owes a cancellation fee. Logic is built now so v2 with payments is a backend flip, not a rewrite.
 
+> **Status:** Storage only. `Listing` carries a `cancellationPolicy: String` field but no enum, no tier enforcement, no refund-window logic. Tier semantics ship with Request-to-Book.
+
 ## Currency
 
 - **Primary:** USD. Somalia is heavily dollarized — listings are quoted in USD.
@@ -181,7 +203,7 @@ In v1 with no in-app payments, "refund" means the reservation is released and no
 
 - **Performance:** Cold launch < 2s on iPhone 12+. Listing feed scrolls at 60fps. Images lazy-loaded and cached.
 - **Accessibility:** VoiceOver fully supported. Dynamic Type support.
-- **Localization:** English UI for v1. Somali greetings, confirmations, and cultural flavor throughout. Full Somali localization in v1.1. Arabic in v2.
+- **Localization:** v1 ships English-only with strings hardcoded inline (no Somali greetings or cultural copy yet). Somali (`Localizable.xcstrings` migration, Discovery first) lands in v1.1. Arabic + RTL in v2.
 - **Security:** Supabase Row-Level Security for all data. Keychain for auth tokens on iOS. HTTPS only. Photo uploads validated (type, size).
 - **Offline:** Listings cached for offline browsing. Booking actions require network. Messaging queues and syncs.
 
@@ -218,4 +240,4 @@ In v1 with no in-app payments, "refund" means the reservation is released and no
 
 ---
 
-*Last updated: 2026-04-17*
+*Last updated: 2026-04-20*

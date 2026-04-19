@@ -40,7 +40,7 @@ All type uses `Font.system(…)` — no custom fonts, no asset-catalog fonts. Ea
 
 | Token           | Anchor                              | Use for                                                        |
 | --------------- | ----------------------------------- | -------------------------------------------------------------- |
-| `martiDisplay`  | `.largeTitle`, `.rounded`, `.black` | Editorial hero titles ("Feel at home.").                       |
+| `martiDisplay`  | `.title`, `.rounded`, `.black` | Editorial hero titles ("Feel at home.").                       |
 | `martiHeading3` | `.title3`, `.bold`                  | Placeholder/section heroes.                                    |
 | `martiHeading4` | `.title3`, `.semibold`              | Section headers, sheet titles, error/empty titles.             |
 | `martiHeading5` | `.headline`                         | Card titles, prices, map-fallback title.                       |
@@ -76,10 +76,10 @@ If a value isn't in the scale, add it to the scale — don't reach for raw liter
 | ------ | --- | ------------------------------------------------------------ |
 | `xs`   | 4   | Tiny chips, hairlines.                                       |
 | `sm`   | 8   | Inputs, small surfaces.                                      |
-| `md`   | 12  | Cards, sheets.                                               |
+| `md`   | 12  | Cards, sheets, hero search card, filter chips.               |
 | `lg`   | 24  | Hero cards, full-width sheets.                               |
 | `xl`   | 40  | Floating containers.                                         |
-| `full` | 100 | Capsules — chips, tab bar, header pill, price pins, banners. |
+| `full` | 100 | Capsules — tab bar, header pill, price pins, banners.        |
 
 ## Iconography
 

@@ -18,9 +18,17 @@ Run this pipeline:
 
 6. **Review UI.** Use the `hig-reviewer` agent to audit the new View(s).
 
-7. **Summarize.** Output:
+7. **Update PRD.** Read `docs/PRD.md`. For the feature just shipped:
+   - Update the `**Status:**` line (✅ Shipped / 🚧 Partial / ⏳ Not started).
+   - Tick the acceptance-criteria checkboxes that this change actually satisfies.
+   - If the feature added behaviour outside the original spec, append it under a `**Recent additions not in original spec:**` sub-bullet on that feature.
+   - Bump the footer `*Last updated:*` date.
+   Show the diff and ask for confirmation before writing. Skip silently if the change isn't represented in the PRD (e.g., infrastructure-only refactor, design-system polish) and note that in step 8.
+
+8. **Summarize.** Output:
    - Files created/modified (with paths)
    - Test coverage summary
    - Build status (✅ passed / ❌ failed with cause)
    - HIG verdict (✅ / ⚠️ / ❌) with any blockers/majors listed
    - One-line wiring note (how to integrate into existing navigation)
+   - PRD update (✅ updated / ⏭ skipped — reason)

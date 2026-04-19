@@ -84,7 +84,7 @@ struct DiscoveryView: View {
                 viewModel.isSearchSheetPresented = true
             }
             cityChips
-                .padding(.top, Spacing.sm)
+                .padding(.top, Spacing.lg)
             ListingListView(viewModel: viewModel)
         }
         .overlay(alignment: .bottom) {
