@@ -1,75 +1,59 @@
 import SwiftUI
 
-/// Centered two-line context pill flanked by circular back and tune (filter) buttons.
+/// Pure display capsule used as the centre island of the Discovery map chrome.
 ///
-/// Used in map mode of the Discovery screen to surface the current city + filter
-/// summary (e.g. "Homes in Mogadishu" / "Dec 17 – Dec 24 · 2 guests") without
-/// requiring the user to reopen the filter sheet. Title and subtitle are
-/// presentation-only in v1; future versions may make them tappable for inline
-/// city/date editing.
+/// Renders a 56pt-tall ultra-thin-material capsule with a single-line title
+/// (and optional stacked subtitle). The leading list-toggle and trailing
+/// filter controls live as separate `FloatingMapIconButton` islands composed
+/// alongside this pill in `DiscoveryView.mapLayout`.
+///
+/// Used in list mode (with subtitle) and map mode (subtitle `nil`, sitting
+/// between the two icon islands).
 struct DiscoveryHeaderPill: View {
     let title: String
-    let subtitle: String
-    var backLabel: String = "Close map view"
-    var tuneLabel: String = "Filters"
-    let onBack: () -> Void
-    let onTune: () -> Void
+    let subtitle: String?
 
     var body: some View {
-        HStack(spacing: Spacing.md) {
-            circularIconButton(systemImage: "chevron.left", label: backLabel, action: onBack)
-            pill
-            circularIconButton(systemImage: "slider.horizontal.3", label: tuneLabel, action: onTune)
-        }
-        .frame(maxWidth: 520)
+        centerLabel
+            .frame(height: 56)
+            .padding(.horizontal, Spacing.base)
+            .floatingIslandBackground(Capsule())
+            .frame(maxWidth: 520)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(Text(combinedA11yLabel))
+            .accessibilityAddTraits(.isHeader)
     }
 
-    private var pill: some View {
-        VStack(spacing: Spacing.sm) {
+    @ViewBuilder
+    private var centerLabel: some View {
+        if let subtitle, !subtitle.isEmpty {
+            VStack(spacing: 2) {
+                Text(title)
+                    .font(.martiLabel1)
+                    .foregroundStyle(Color.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .minimumScaleFactor(0.85)
+                Text(subtitle)
+                    .font(.martiFootnote)
+                    .foregroundStyle(Color.textSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .minimumScaleFactor(0.85)
+            }
+        } else {
             Text(title)
                 .font(.martiLabel1)
                 .foregroundStyle(Color.textPrimary)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .allowsTightening(true)
-                .minimumScaleFactor(0.9)
-            Text(subtitle)
-                .font(.martiFootnote)
-                .foregroundStyle(Color.textSecondary)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .allowsTightening(true)
-                .minimumScaleFactor(0.9)
+                .minimumScaleFactor(0.85)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, Spacing.base)
-        .padding(.vertical, Spacing.md)
-        .background(Capsule().fill(Color.surfaceElevated))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("\(title). \(subtitle)"))
-        .accessibilityAddTraits(.isHeader)
     }
 
-    /// Creates a circular icon button displaying a SF Symbol and exposing an accessibility label.
-    /// - Parameters:
-    ///   - systemImage: The name of the SF Symbol to display inside the button.
-    ///   - label: The accessibility label read by assistive technologies.
-    ///   - action: The closure invoked when the button is tapped.
-    /// - Returns: A view containing a tappable circular button that shows the specified system image and uses the provided accessibility label.
-    private func circularIconButton(
-        systemImage: String,
-        label: String,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Color.textPrimary)
-                .frame(width: 48, height: 48)
-                .background(Circle().fill(Color.surfaceElevated))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(label)
+    private var combinedA11yLabel: String {
+        if let subtitle, !subtitle.isEmpty { return "\(title). \(subtitle)" }
+        return title
     }
 }
 
@@ -77,9 +61,7 @@ struct DiscoveryHeaderPill: View {
     VStack {
         DiscoveryHeaderPill(
             title: "Homes across Somalia",
-            subtitle: "Any dates · 1 guest",
-            onBack: {},
-            onTune: {}
+            subtitle: "Any dates · 1 guest"
         )
         Spacer()
     }
@@ -93,9 +75,7 @@ struct DiscoveryHeaderPill: View {
     VStack {
         DiscoveryHeaderPill(
             title: "Homes in Mogadishu",
-            subtitle: "Dec 17 – Dec 24 · 2 guests",
-            onBack: {},
-            onTune: {}
+            subtitle: "Dec 17 – Dec 24 · 2 guests"
         )
         Spacer()
     }
@@ -109,9 +89,21 @@ struct DiscoveryHeaderPill: View {
     VStack {
         DiscoveryHeaderPill(
             title: "Homes in a ridiculously long place name that will not fit",
-            subtitle: "Dec 17 – Dec 24 · 10 guests",
-            onBack: {},
-            onTune: {}
+            subtitle: "Dec 17 – Dec 24 · 10 guests"
+        )
+        Spacer()
+    }
+    .padding(.horizontal, Spacing.base)
+    .padding(.top, Spacing.md)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color.canvas)
+}
+
+#Preview("Map mode · live count") {
+    VStack {
+        DiscoveryHeaderPill(
+            title: "42 homes in view",
+            subtitle: nil
         )
         Spacer()
     }

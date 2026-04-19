@@ -27,7 +27,7 @@ struct FavoriteHeartButton: View {
     /// Two call-site sizes. The visible disc diameter differs, but the hit
     /// target is always 44pt to satisfy HIG's minimum touch target.
     enum Size {
-        /// 32pt visible disc, 44pt hit target. Floats over card images as a
+        /// 28pt visible disc, 44pt hit target. Floats over card images as a
         /// secondary affordance alongside larger primary content.
         case small
         /// 44pt visible disc, 44pt hit target. Used when the heart sits next
@@ -37,7 +37,7 @@ struct FavoriteHeartButton: View {
 
         var visibleDiameter: CGFloat {
             switch self {
-            case .small: 32
+            case .small: 28
             case .large: 44
             }
         }
@@ -47,17 +47,9 @@ struct FavoriteHeartButton: View {
 
     var body: some View {
         Image(systemName: "heart")
-            .font(.system(size: 16, weight: isSaved ? .semibold : .regular))
+            .font(.system(size: 14, weight: isSaved ? .semibold : .regular))
             .foregroundStyle(isSaved ? Color.statusDanger : Color.textPrimary)
-            .frame(width: size.visibleDiameter, height: size.visibleDiameter)
-            .background(
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        Circle().stroke(Color.white.opacity(0.12), lineWidth: 0.5)
-                    )
-            )
-            .shadow(color: .black.opacity(0.25), radius: 4, y: 1)
+            .glassDisc(diameter: size.visibleDiameter)
             .frame(width: size.hitDiameter, height: size.hitDiameter)
             .contentShape(Rectangle())
             .onTapGesture { onToggle() }

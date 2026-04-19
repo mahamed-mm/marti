@@ -1,4 +1,6 @@
+import CoreLocation
 import Foundation
+import MapboxMaps
 import Observation
 import SwiftData
 
@@ -20,11 +22,12 @@ final class ListingDiscoveryViewModel {
     private(set) var hasMorePages: Bool = true
     private(set) var savedListingIDs: Set<UUID> = []
     private(set) var isOffline: Bool = false
+    private(set) var visibleListingCount: Int = 0
 
     var filter: ListingFilter = .default
     var viewMode: ViewMode = .list
     var selectedPinID: UUID?
-    var isFilterSheetPresented: Bool = false
+    var isSearchSheetPresented: Bool = false
     var isAuthSheetPresented: Bool = false
     var feeTagDismissed: Bool = false
 
@@ -83,6 +86,41 @@ final class ListingDiscoveryViewModel {
         return "\(dateLabel) · \(guestLabel)"
     }
 
+    /// Map-mode header copy, driven by the live viewport count rather than
+    /// static filter summary. List mode continues to use `headerTitle` /
+    /// `headerSubtitle`; those stay untouched.
+    var headerLiveSummary: String {
+        let n = visibleListingCount
+        let noun = n == 1 ? "home" : "homes"
+        if let city = filter.city {
+            return "\(n) \(noun) in \(Self.cityName(city))"
+        }
+        return "\(n) \(noun) in view"
+    }
+
+    /// Returns the human-readable display name for a given city.
+    /// - Parameter city: The `City` enum value to convert to a display name.
+    /// Maps a `City` value to its human-readable display name.
+    /// - Parameter city: The city enum value to map.
+    /// - Returns: The display name for the given city (e.g., "Mogadishu", "Hargeisa").
+    private static func cityName(_ city: City) -> String {
+        switch city {
+        case .mogadishu: "Mogadishu"
+        case .hargeisa:  "Hargeisa"
+        }
+    }
+
+    /// Camera the map view should frame when it opens. Driven purely by
+    /// `filter.city`: a city filter centers on that city at its default
+    /// zoom; otherwise we fall back to `MapConfiguration.defaultUserLocation`
+    /// (v1 static stand-in for real user location).
+    var targetCamera: (coordinate: CLLocationCoordinate2D, zoom: Double) {
+        if let city = filter.city {
+            return (city.centerCoordinate, city.defaultZoom)
+        }
+        return MapConfiguration.defaultUserLocation
+    }
+
     private static let dateRangeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -96,8 +134,13 @@ final class ListingDiscoveryViewModel {
     private let currencyService: CurrencyService
     private let authManager: AuthManager
     private let modelContext: ModelContext?
+    private let userDefaults: UserDefaults
     private let pageSize: Int
     private let debounce: Duration
+
+    // MARK: - Persistence keys
+
+    static let feeTagDismissedKey = "discovery.feeTagDismissed"
 
     // MARK: - Task references
 
@@ -111,6 +154,7 @@ final class ListingDiscoveryViewModel {
         currencyService: CurrencyService,
         authManager: AuthManager,
         modelContext: ModelContext? = nil,
+        userDefaults: UserDefaults = .standard,
         pageSize: Int = 20,
         debounce: Duration = .milliseconds(300)
     ) {
@@ -118,8 +162,10 @@ final class ListingDiscoveryViewModel {
         self.currencyService = currencyService
         self.authManager = authManager
         self.modelContext = modelContext
+        self.userDefaults = userDefaults
         self.pageSize = pageSize
         self.debounce = debounce
+        self.feeTagDismissed = userDefaults.bool(forKey: Self.feeTagDismissedKey)
     }
 
     /// Loads the discovery feed and updates the view model's listings and categories.
@@ -268,14 +314,41 @@ final class ListingDiscoveryViewModel {
 
     /// Selects the map pin corresponding to the given listing identifier.
     /// - Parameters:
-    ///   - id: The listing `UUID` to select; pass `nil` to clear the current selection.
+    /// Selects the map pin corresponding to the given listing ID or clears the selection.
+    /// Selects the map pin corresponding to the given listing identifier.
+    /// - Parameter id: The listing `UUID` to select, or `nil` to clear the current selection.
     func selectPin(_ id: UUID?) {
         selectedPinID = id
     }
 
+    /// Updates the count of listings whose coordinates fall within the given
+    /// map-camera bounds. Called from `ListingMapView` on camera-idle so the
+    /// Updates the live map-visible listing count by counting listings whose coordinates fall inside the provided map bounds.
+    /// - Parameter bounds: The map coordinate bounds used to determine which listings are considered in view.
+    /// Recalculates and updates the number of listings whose coordinates fall within the provided map bounds.
+    /// - Parameters:
+    ///   - bounds: The map bounds used to determine which listings are currently visible. The view model's `visibleListingCount` is updated only if the computed count differs from the current value.
+    func updateVisibleListings(bounds: CoordinateBounds) {
+        let count = listings.reduce(into: 0) { acc, listing in
+            let coord = CLLocationCoordinate2D(latitude: listing.latitude,
+                                               longitude: listing.longitude)
+            if bounds.contains(forPoint: coord, wrappedCoordinates: true) {
+                acc += 1
+            }
+        }
+        if count != visibleListingCount { visibleListingCount = count }
+    }
+
     /// Marks the fee tag as dismissed so the UI will stop presenting it.
+    /// Persists across app launches via `UserDefaults` — trust messaging is
+    /// Marks the discovery fee tag as dismissed and persists that state to UserDefaults.
+    /// 
+    /// Marks the discovery fee tag as dismissed and persists that state to `UserDefaults`.
+    /// 
+    /// The dismissed flag is stored under `Self.feeTagDismissedKey`.
     func dismissFeeTag() {
         feeTagDismissed = true
+        userDefaults.set(true, forKey: Self.feeTagDismissedKey)
     }
 
     /// Clears the current map pin selection if the selected pin's listing no longer exists in `listings`.

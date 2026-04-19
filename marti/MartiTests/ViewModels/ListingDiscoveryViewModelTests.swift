@@ -1,4 +1,6 @@
+import CoreLocation
 import Foundation
+import MapboxMaps
 import SwiftData
 import Testing
 @testable import Marti
@@ -332,6 +334,134 @@ struct ListingDiscoveryViewModelTests {
         #expect(vm.headerSubtitle == "Any dates · 3 guests")
     }
 
+    // MARK: - Live viewport summary (map mode)
+
+    @Test func updateVisibleListings_allWithinBounds_setsCountToListingCount() async {
+        let service = MockListingService()
+        // Mogadishu-area coordinates all comfortably inside the bounds below.
+        let a = Self.makeListingDTO(latitude: 2.04, longitude: 45.31)
+        let b = Self.makeListingDTO(latitude: 2.06, longitude: 45.33)
+        let c = Self.makeListingDTO(latitude: 2.05, longitude: 45.32)
+        service.fetchFeedHandler = { _ in DiscoveryFeedDTO(categories: [], listings: [a, b, c]) }
+        let vm = makeViewModel(service: service)
+        await vm.loadListings()
+
+        vm.updateVisibleListings(bounds: Self.bounds(
+            south: 2.00, west: 45.25,
+            north: 2.10, east: 45.40
+        ))
+
+        #expect(vm.visibleListingCount == 3)
+    }
+
+    @Test func updateVisibleListings_noneWithinBounds_setsCountToZero() async {
+        let service = MockListingService()
+        let a = Self.makeListingDTO(latitude: 9.56, longitude: 44.06)  // Hargeisa
+        let b = Self.makeListingDTO(latitude: 9.58, longitude: 44.08)
+        service.fetchFeedHandler = { _ in DiscoveryFeedDTO(categories: [], listings: [a, b]) }
+        let vm = makeViewModel(service: service)
+        await vm.loadListings()
+
+        // Tight bounding box over Mogadishu — neither Hargeisa point falls in.
+        vm.updateVisibleListings(bounds: Self.bounds(
+            south: 2.00, west: 45.25,
+            north: 2.10, east: 45.40
+        ))
+
+        #expect(vm.visibleListingCount == 0)
+    }
+
+    @Test func updateVisibleListings_partialOverlap_setsCountToOverlapSize() async {
+        let service = MockListingService()
+        let insideA  = Self.makeListingDTO(latitude: 2.05, longitude: 45.30)
+        let insideB  = Self.makeListingDTO(latitude: 2.07, longitude: 45.35)
+        let outside  = Self.makeListingDTO(latitude: 9.56, longitude: 44.06)
+        service.fetchFeedHandler = { _ in
+            DiscoveryFeedDTO(categories: [], listings: [insideA, insideB, outside])
+        }
+        let vm = makeViewModel(service: service)
+        await vm.loadListings()
+
+        vm.updateVisibleListings(bounds: Self.bounds(
+            south: 2.00, west: 45.25,
+            north: 2.10, east: 45.40
+        ))
+
+        #expect(vm.visibleListingCount == 2)
+    }
+
+    @Test func headerLiveSummary_withCityFilter_usesCityName() async {
+        let service = MockListingService()
+        let a = Self.makeListingDTO(latitude: 9.56, longitude: 44.06)
+        let b = Self.makeListingDTO(latitude: 9.57, longitude: 44.07)
+        service.fetchFeedHandler = { _ in DiscoveryFeedDTO(categories: [], listings: [a, b]) }
+        let vm = makeViewModel(service: service)
+        await vm.loadListings()
+
+        vm.filter = ListingFilter(city: .hargeisa)
+        vm.updateVisibleListings(bounds: Self.bounds(
+            south: 9.50, west: 44.00,
+            north: 9.65, east: 44.15
+        ))
+
+        #expect(vm.headerLiveSummary == "2 homes in Hargeisa")
+    }
+
+    @Test func headerLiveSummary_noCityFilter_usesInViewLabel() async {
+        let service = MockListingService()
+        let a = Self.makeListingDTO(latitude: 2.05, longitude: 45.32)
+        let b = Self.makeListingDTO(latitude: 2.06, longitude: 45.33)
+        let c = Self.makeListingDTO(latitude: 2.07, longitude: 45.34)
+        service.fetchFeedHandler = { _ in DiscoveryFeedDTO(categories: [], listings: [a, b, c]) }
+        let vm = makeViewModel(service: service)
+        await vm.loadListings()
+
+        vm.updateVisibleListings(bounds: Self.bounds(
+            south: 2.00, west: 45.25,
+            north: 2.10, east: 45.40
+        ))
+
+        #expect(vm.filter.city == nil)
+        #expect(vm.headerLiveSummary == "3 homes in view")
+    }
+
+    @Test func headerLiveSummary_singular_oneHomeUsesSingular() async {
+        let service = MockListingService()
+        let inside = Self.makeListingDTO(latitude: 2.05, longitude: 45.32)
+        service.fetchFeedHandler = { _ in DiscoveryFeedDTO(categories: [], listings: [inside]) }
+        let vm = makeViewModel(service: service)
+        await vm.loadListings()
+
+        vm.updateVisibleListings(bounds: Self.bounds(
+            south: 2.00, west: 45.25,
+            north: 2.10, east: 45.40
+        ))
+
+        #expect(vm.visibleListingCount == 1)
+        #expect(vm.headerLiveSummary == "1 home in view")
+    }
+
+    // MARK: - Target camera
+
+    @Test func targetCamera_noCityFilter_returnsMogadishuStandIn() {
+        let vm = makeViewModel()
+        let target = vm.targetCamera
+        #expect(abs(target.coordinate.latitude  - 2.0469)  < 0.0001)
+        #expect(abs(target.coordinate.longitude - 45.3182) < 0.0001)
+        #expect(abs(target.zoom - 12.5) < 0.0001)
+    }
+
+    @Test func targetCamera_withCityFilter_returnsCityCenter() async {
+        let vm = makeViewModel()
+        vm.applyFilter(ListingFilter(city: .hargeisa))
+        await vm.awaitPendingDebounce()
+
+        let target = vm.targetCamera
+        #expect(abs(target.coordinate.latitude  - 9.5600) < 0.0001)
+        #expect(abs(target.coordinate.longitude - 44.0650) < 0.0001)
+        #expect(abs(target.zoom - 12.5) < 0.0001)
+    }
+
     // MARK: - Selected listing
 
     @Test func selectedListing_resolvesFromSelectedPinID() async {
@@ -406,6 +536,47 @@ struct ListingDiscoveryViewModelTests {
         #expect(vm.selectedListing?.id == idA)
     }
 
+    /// Regression: after an explicit `selectPin(nil)` — the action driven by
+    /// the X close button on `SelectedListingCard` — the ViewModel must not
+    /// reassign `selectedPinID` from any derived source (e.g. "first visible
+    /// listing") on subsequent no-op state updates. Fences the snap-back bug
+    /// where dismissing the expanded card immediately re-opened it.
+    @Test func deselect_staysNilAcrossSubsequentNoOpStateUpdates() async {
+        let service = MockListingService()
+        let idA = UUID()
+        let idB = UUID()
+        service.fetchFeedHandler = { _ in
+            DiscoveryFeedDTO(
+                categories: [],
+                listings: [
+                    Self.makeListingDTO(id: idA, latitude: 2.05, longitude: 45.32),
+                    Self.makeListingDTO(id: idB, latitude: 2.06, longitude: 45.33)
+                ]
+            )
+        }
+
+        let vm = makeViewModel(service: service)
+        await vm.loadListings()
+        vm.selectPin(idA)
+        #expect(vm.selectedPinID == idA)
+
+        vm.selectPin(nil)
+        #expect(vm.selectedPinID == nil)
+        #expect(vm.selectedListing == nil)
+
+        vm.updateVisibleListings(bounds: Self.bounds(
+            south: 2.00, west: 45.25,
+            north: 2.10, east: 45.40
+        ))
+        #expect(vm.visibleListingCount == 2)
+        #expect(vm.selectedPinID == nil)
+        #expect(vm.selectedListing == nil)
+
+        await vm.loadListings()
+        #expect(vm.selectedPinID == nil)
+        #expect(vm.selectedListing == nil)
+    }
+
     // MARK: - SwiftData cache safety
 
     /// Regression: a View holding a `Listing` from `vm.listings` must never crash
@@ -454,12 +625,23 @@ struct ListingDiscoveryViewModelTests {
         #expect(vm.feeTagDismissed == true)
     }
 
-    @Test func feeTagDismissed_doesNotPersistAcrossInstances() {
-        let first = makeViewModel()
+    @Test func feeTagDismissed_persistsAcrossInstancesSharingUserDefaults() {
+        let defaults = Self.makeDefaults()
+
+        let first = makeViewModel(userDefaults: defaults)
         first.dismissFeeTag()
         #expect(first.feeTagDismissed == true)
 
-        let second = makeViewModel()
+        let second = makeViewModel(userDefaults: defaults)
+        #expect(second.feeTagDismissed == true)
+    }
+
+    @Test func feeTagDismissed_doesNotBleedAcrossUserDefaultsSuites() {
+        let first = makeViewModel(userDefaults: Self.makeDefaults())
+        first.dismissFeeTag()
+        #expect(first.feeTagDismissed == true)
+
+        let second = makeViewModel(userDefaults: Self.makeDefaults())
         #expect(second.feeTagDismissed == false)
     }
 
@@ -522,10 +704,56 @@ struct ListingDiscoveryViewModelTests {
         tagging(dto, with: [categoryID])
     }
 
+    /// Deterministic listing DTO with custom coordinates — map-viewport tests
+    /// need lat/lng control which the shared `MockListingServiceTests.makeDTO`
+    /// doesn't expose.
+    nonisolated static func makeListingDTO(
+        id: UUID = UUID(),
+        latitude: Double,
+        longitude: Double
+    ) -> ListingDTO {
+        ListingDTO(
+            id: id,
+            title: "Test",
+            city: "Mogadishu",
+            neighborhood: "Hodan",
+            description: "desc",
+            pricePerNight: 8500,
+            latitude: latitude,
+            longitude: longitude,
+            photoURLs: [],
+            amenities: [],
+            maxGuests: 2,
+            hostID: UUID(),
+            hostName: "Host",
+            hostPhotoURL: nil,
+            isVerified: true,
+            averageRating: nil,
+            reviewCount: 0,
+            cancellationPolicy: "flexible",
+            createdAt: Date(timeIntervalSince1970: 1_800_000_000),
+            updatedAt: Date(timeIntervalSince1970: 1_800_000_000),
+            categoryIDs: []
+        )
+    }
+
+    nonisolated static func bounds(
+        south: CLLocationDegrees,
+        west: CLLocationDegrees,
+        north: CLLocationDegrees,
+        east: CLLocationDegrees
+    ) -> CoordinateBounds {
+        CoordinateBounds(
+            southwest: CLLocationCoordinate2D(latitude: south, longitude: west),
+            northeast: CLLocationCoordinate2D(latitude: north, longitude: east)
+        )
+    }
+
     private func makeViewModel(
         service: MockListingService = MockListingService(),
         currency: CurrencyService = StubCurrencyService(),
         auth: AuthManager? = nil,
+        userDefaults: UserDefaults? = nil,
         pageSize: Int = 20,
         debounce: Duration = .milliseconds(5)
     ) -> ListingDiscoveryViewModel {
@@ -533,9 +761,19 @@ struct ListingDiscoveryViewModelTests {
             listingService: service,
             currencyService: currency,
             authManager: auth ?? AuthManager(isAuthenticated: false),
+            userDefaults: userDefaults ?? Self.makeDefaults(),
             pageSize: pageSize,
             debounce: debounce
         )
+    }
+
+    /// Per-call isolated defaults suite so nothing bleeds between tests (and so
+    /// the suite doesn't persist stale state between runs via `.standard`).
+    nonisolated static func makeDefaults() -> UserDefaults {
+        let suite = "test.ListingDiscoveryViewModel.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        return defaults
     }
 }
 

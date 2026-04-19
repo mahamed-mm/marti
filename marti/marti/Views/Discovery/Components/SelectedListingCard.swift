@@ -40,22 +40,12 @@ struct SelectedListingCard: View {
             .frame(maxWidth: 520)
             .background(Color.surfaceDefault)
             .clipShape(RoundedRectangle(cornerRadius: Radius.lg))
-            .shadow(color: .black.opacity(0.35), radius: 16, y: 6)
+            .shadow(token: .floatingCard)
             .offset(y: dragOffset + (isVisible ? 0 : 40))
             .opacity(isVisible ? 1 : 0)
             .onAppear(perform: animateIn)
             .simultaneousGesture(dismissDrag)
-            .accessibilityElement(children: .ignore)
-            .accessibilityAddTraits(.isButton)
-            .accessibilityLabel(accessibilityDescription)
-            .accessibilityHint("Opens listing details.")
-            .accessibilityAction { onTapCard() }
-            .accessibilityAction(named: isSaved ? "Remove from saved" : "Save listing") {
-                onToggleSave()
-            }
-            .accessibilityAction(named: "Close preview") {
-                onDismiss()
-            }
+            .accessibilityElement(children: .contain)
     }
 
     // MARK: - Content
@@ -63,9 +53,12 @@ struct SelectedListingCard: View {
     private var cardContent: some View {
         VStack(alignment: .leading, spacing: 0) {
             hero
-            info
-                .contentShape(Rectangle())
-                .onTapGesture { onTapCard() }
+            Button(action: onTapCard) {
+                info
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(accessibilityDescription)
+            .accessibilityHint("Opens listing details.")
         }
     }
 
@@ -78,7 +71,6 @@ struct SelectedListingCard: View {
 
             HStack(spacing: Spacing.sm) {
                 FavoriteHeartButton(isSaved: isSaved, size: .large, onToggle: onToggleSave)
-                    .accessibilityHidden(true)
                 closeButton
             }
             .padding(Spacing.md)
@@ -236,7 +228,8 @@ struct SelectedListingCard: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityHidden(true)   // Exposed via parent's custom action.
+        .accessibilityLabel("Close")
+        .accessibilityHint("Dismisses the listing preview")
     }
 
     /// Dark scrim under `.ultraThinMaterial` so the overlay buttons stay

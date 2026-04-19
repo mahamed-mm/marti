@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FilterSheetView: View {
+struct SearchSheetView: View {
     @Bindable var viewModel: ListingDiscoveryViewModel
     @Environment(\.dismiss) private var dismiss
 
@@ -11,6 +11,8 @@ struct FilterSheetView: View {
     @State private var draftMinDollars: Int
     @State private var draftMaxDollars: Int
     @State private var pickerEditing: DateField?
+    @State private var destinationQuery: String = ""
+    @FocusState private var destinationFocused: Bool
 
     private static let priceFloor: Int = 0
     private static let priceCeiling: Int = 500
@@ -41,6 +43,9 @@ struct FilterSheetView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.lg) {
+                    destinationSection
+                    Divider().background(Color.dividerLine)
+
                     citySection
                     Divider().background(Color.dividerLine)
 
@@ -55,6 +60,7 @@ struct FilterSheetView: View {
                 .padding(.horizontal, Spacing.lg)
                 .padding(.bottom, Spacing.base)
             }
+            .scrollDismissesKeyboard(.interactively)
         }
         .background(Color.surfaceDefault.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -69,6 +75,10 @@ struct FilterSheetView: View {
         .presentationBackground(Color.surfaceDefault)
         .sheet(item: $pickerEditing) { field in
             datePickerSheet(for: field)
+        }
+        .task {
+            try? await Task.sleep(for: .milliseconds(250))
+            destinationFocused = true
         }
     }
 
@@ -100,6 +110,48 @@ struct FilterSheetView: View {
         Button("Clear all", action: clearAll)
             .buttonStyle(.ghostCompact)
             .accessibilityLabel("Clear all filters")
+    }
+
+    // MARK: - Destination
+
+    private var destinationSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            label("WHERE")
+            HStack(spacing: Spacing.md) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Color.textSecondary)
+                TextField("Search destinations", text: $destinationQuery)
+                    .font(.martiBody)
+                    .foregroundStyle(Color.textPrimary)
+                    .textInputAutocapitalization(.words)
+                    .autocorrectionDisabled(true)
+                    .submitLabel(.search)
+                    .focused($destinationFocused)
+                    .accessibilityLabel("Destination")
+                    .accessibilityHint("Enter a city, neighborhood, or landmark.")
+                if !destinationQuery.isEmpty {
+                    Button {
+                        destinationQuery = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear destination")
+                }
+            }
+            .padding(.horizontal, Spacing.base)
+            .padding(.vertical, Spacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: Radius.md)
+                    .fill(Color.surfaceDefault)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.md)
+                    .strokeBorder(Color.surfaceGlass, lineWidth: 1)
+            )
+        }
     }
 
     // MARK: - City
@@ -289,13 +341,16 @@ struct FilterSheetView: View {
     // MARK: - Apply
 
     private var applyButton: some View {
-        Button("Show listings", action: apply)
+        Button("Search", action: apply)
             .buttonStyle(.primaryFullWidth)
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.md)
+            .accessibilityLabel("Search with these filters")
     }
 
-    // MARK: - Helpers
+    /// Creates a caption-styled, tertiary-colored label for section headings.
+    /// - Parameter text: The string to display in the label.
+    /// - Returns: A view displaying `text` using the app's caption font in bold, with 0.5 tracking and tertiary foreground styling.
 
     private func label(_ text: String) -> some View {
         Text(text)
@@ -304,6 +359,13 @@ struct FilterSheetView: View {
             .foregroundStyle(Color.textTertiary)
     }
 
+    /// Resets all draft filter fields to their default values.
+    /// 
+    /// Specifically clears the selected city and dates, sets guests back to 1,
+    /// Resets all draft filter fields to their default state.
+    /// 
+    /// Clears the selected city and destination query, clears check-in/check-out dates,
+    /// sets guest count to 1, and restores the price sliders to the configured floor and ceiling.
     private func clearAll() {
         draftCity = nil
         draftCheckIn = nil
@@ -311,8 +373,16 @@ struct FilterSheetView: View {
         draftGuests = 1
         draftMinDollars = Self.priceFloor
         draftMaxDollars = Self.priceCeiling
+        destinationQuery = ""
     }
 
+    /// Applies the view's current draft filter values to the bound view model and then dismisses the sheet.
+    /// 
+    /// The applied `ListingFilter` is built from the draft city, check-in/check-out dates, guest count, and price range. The price slider values (dollars) are converted to cents and set to `nil` when they equal the configured floor/ceiling (i.e., no min/max). The current `destinationQuery` is referenced but not wired into the filter/search logic.
+    /// 
+    /// Applies the current draft filter values to the bound view model and closes the sheet.
+    /// 
+    /// Constructs a `ListingFilter` from the draft state and passes it to `viewModel.applyFilter(_:)`, then dismisses the sheet. Price slider dollar values are converted to cents and mapped to `nil` when they represent the unfiltered bounds (priceMin -> `nil` when equal to `priceFloor`; priceMax -> `nil` when equal to `priceCeiling`). The draft `destinationQuery` is read and intentionally not included in the applied filter (not wired to search yet).
     private func apply() {
         let priceMin = draftMinDollars > Self.priceFloor ? draftMinDollars * 100 : nil
         let priceMax = draftMaxDollars < Self.priceCeiling ? draftMaxDollars * 100 : nil
@@ -325,6 +395,8 @@ struct FilterSheetView: View {
             priceMax: priceMax
         )
         viewModel.applyFilter(filter)
+        // TODO: wire destinationQuery to search service when v2 adds destination-text search
+        _ = destinationQuery
         dismiss()
     }
 }

@@ -19,8 +19,8 @@ The Discovery map view is functional but visually sparse and structurally dated 
 
 ## Acceptance Criteria
 
-- [ ] AC1: Map-mode top bar replaces the current search-field + two-icon layout with: circular back/close (left), centered two-line pill showing `headerTitle` + `headerSubtitle` (center), circular tune icon (right) that opens the existing `FilterSheetView`.
-- [ ] AC2: The inline `CityChipView` row (currently rendered by `DiscoveryView` in map mode) is removed. City selection stays in `FilterSheetView` where it already lives.
+- [ ] AC1: Map-mode top bar replaces the current search-field + two-icon layout with: circular back/close (left), centered two-line pill showing `headerTitle` + `headerSubtitle` (center), circular tune icon (right) that opens the existing `SearchSheetView`.
+- [ ] AC2: The inline `CityChipView` row (currently rendered by `DiscoveryView` in map mode) is removed. City selection stays in `SearchSheetView` where it already lives.
 - [ ] AC3: Price pins get a styling pass — the per-listing `MapViewAnnotation` continues to render for every `viewModel.listings` entry (already implemented), but each pin now uses a capsule label with `$price/night` typography, `Color.surfaceDefault` + `Color.textPrimary` unselected, `Color.coreAccent` fill + `Color.canvas` text when selected, and an elevated z-order on the selected pin.
 - [ ] AC4: Tapping a price pin calls `viewModel.selectPin(listing.id)` (existing API), elevates that pin, and presents the new `SelectedListingCard` anchored above `FloatingTabView`.
 - [ ] AC5: Pins keep `.allowOverlap(true)` (already set). Clustering is **out of scope for v1** — the Mapbox v11 SwiftUI `MapViewAnnotation` API does not natively cluster, and the imperative `PointAnnotationManager` does not compose cleanly with the declarative map. Density handling is tracked as a follow-up.
@@ -60,7 +60,7 @@ Existing state that this feature reuses as-is:
 New state:
 
 ```
-feeTagDismissed: Bool                  // Session-scoped dismissal of FeeInclusionTag (default false)
+feeTagDismissed: Bool                  // Persisted dismissal of FeeInclusionTag, read from UserDefaults at init (default false)
 headerTitle: String (computed)         // e.g. "Homes in Mogadishu" or "Homes across Somalia"
 headerSubtitle: String (computed)      // e.g. "Any dates · 1 guest" or "Dec 17–24 · 2 guests"
 selectedListing: Listing? (computed)   // Looks up `selectedPinID` in `listings`; nil if no match
@@ -69,14 +69,14 @@ selectedListing: Listing? (computed)   // Looks up `selectedPinID` in `listings`
 New actions:
 
 ```
-dismissFeeTag()                        // Flips feeTagDismissed = true for session
+dismissFeeTag()                        // Flips feeTagDismissed = true AND persists to UserDefaults
 ```
 
 Behavior:
 
 - `headerTitle` derives from `filter.city`: `"Homes in \(city.displayName)"` or `"Homes across Somalia"` when `city == nil`.
 - `headerSubtitle` derives from `filter.checkIn/checkOut` and `filter.guestCount`. Format: `"\(dateLabel) · \(guestCount) guest(s)"`. `dateLabel` is `"Any dates"` when either date is nil.
-- `feeTagDismissed` is **not** persisted to `UserDefaults` — resets each app launch.
+- `feeTagDismissed` **is** persisted to `UserDefaults` under the key `discovery.feeTagDismissed`. Reviewer feedback (2026-04-19): a once-per-session trust message consumes prime viewport real estate every launch; post-dismissal, the tag should stay gone. The ViewModel accepts an injected `UserDefaults` (default `.standard`) so tests can isolate persistence.
 - When `applyFilter()` or `loadListings()` produces a `listings` array that no longer contains `selectedPinID`, the ViewModel must call `selectPin(nil)` to auto-dismiss the card.
 - `selectedListing` is derived — no parallel state, no risk of drift.
 
@@ -100,14 +100,14 @@ Behavior:
 | `Views/Discovery/ListingMapView.swift` | Remove the `.sheet` presentation block (`ListingMapView.swift:21-32`) and the `.hideFloatingTabBar(...)` modifier. Replace the inline `pricePin(for:)` helper with `ListingPricePin`. Tap handlers still call `viewModel.selectPin(listing.id)` / `selectPin(nil)`. |
 | `ViewModels/ListingDiscoveryViewModel.swift` | Add `feeTagDismissed`, `headerTitle`, `headerSubtitle`, `selectedListing` (computed), `dismissFeeTag()`. Add selection auto-clear logic in `applyFilter()` and after `loadListings()` completes. |
 
-**No changes** to `ListingCardView`, `FloatingTabView`, `ListingListView`, `FilterSheetView`, services, or models. `CityChipView` stays in the shared layer; only its inline usage in `DiscoveryView`'s map-mode header is removed.
+**No changes** to `ListingCardView`, `FloatingTabView`, `ListingListView`, `SearchSheetView`, services, or models. `CityChipView` stays in the shared layer; only its inline usage in `DiscoveryView`'s map-mode header is removed.
 
 ### Navigation
 
 ```
 DiscoveryView (map mode)
 ├── Tap header pill title → no-op (future: city picker)
-├── Tap tune icon → present FilterSheetView (.sheet) — unchanged
+├── Tap tune icon → present SearchSheetView (.sheet) — unchanged
 ├── Tap price pin → viewModel.selectPin(id) → SelectedListingCard appears
 ├── Swipe down on SelectedListingCard → viewModel.selectPin(nil)
 ├── Tap close on SelectedListingCard → viewModel.selectPin(nil)
@@ -181,7 +181,8 @@ Mirror the existing pattern in `ListingDiscoveryViewModelTests` — `@MainActor 
 - `test_selectedListing_nilWhenPinIDMissingFromListings`
 - `test_selectPin_clearsWhenListingNotInCurrentResults` — set `selectedPinID`, apply a filter that removes that listing, expect `selectedPinID` to become nil after `applyFilter()` settles
 - `test_dismissFeeTag_flipsFeeTagDismissed`
-- `test_feeTagDismissed_doesNotPersistAcrossInstances`
+- `test_feeTagDismissed_persistsAcrossInstancesSharingUserDefaults`
+- `test_feeTagDismissed_doesNotBleedAcrossUserDefaultsSuites`
 - `test_selectionSurvives_refreshThatStillContainsListing`
 
 ### Service Tests

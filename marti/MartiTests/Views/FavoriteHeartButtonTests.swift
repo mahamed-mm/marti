@@ -4,8 +4,8 @@ import Testing
 
 @MainActor
 @Suite struct FavoriteHeartButtonTests {
-    @Test func smallReports32VisibleAnd44Hit() {
-        #expect(FavoriteHeartButton.Size.small.visibleDiameter == 32)
+    @Test func smallReports28VisibleAnd44Hit() {
+        #expect(FavoriteHeartButton.Size.small.visibleDiameter == 28)
         #expect(FavoriteHeartButton.Size.small.hitDiameter == 44)
     }
 

@@ -29,15 +29,7 @@ struct VerifiedBadgeView: View {
         Image(systemName: "checkmark.seal.fill")
             .font(.system(size: 13, weight: .semibold))
             .foregroundStyle(Color.coreAccent)
-            .frame(width: 24, height: 24)
-            .background(
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        Circle().stroke(Color.white.opacity(0.12), lineWidth: 0.5)
-                    )
-            )
-            .shadow(color: .black.opacity(0.25), radius: 4, y: 1)
+            .glassDisc(diameter: 24)
     }
 
     private var labelBadge: some View {

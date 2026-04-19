@@ -1,15 +1,16 @@
 ---
-description: Read the existing codebase and generate ARCHITECTURE.md from what actually exists.
+description: Audit the codebase and write a dated architecture snapshot to docs/audits/.
 ---
 
-Audit the codebase and write `docs/ARCHITECTURE.md` based on what actually exists, not what was intended.
+Audit the codebase and write `docs/audits/YYYY-MM-DD-architecture.md` based on what actually exists, not what was intended. **Do not touch `docs/ARCHITECTURE.md`** — that's the lean spec, maintained separately.
 
 ## Process
 
 1. **Read context first:**
    - `CLAUDE.md` for stack and conventions
    - `docs/PRD.md` if it exists
-   - Existing `docs/ARCHITECTURE.md` if present (to compare intent vs reality)
+   - `docs/ARCHITECTURE.md` (the lean spec — treat as intent)
+   - Most recent file in `docs/audits/*-architecture.md` if present (for diff vs prior audit)
 
 2. **Explore the codebase systematically.** Use Glob and Read to map:
    - Project/workspace structure (`.xcodeproj`, `.xcworkspace`, `Package.swift`)
@@ -18,48 +19,51 @@ Audit the codebase and write `docs/ARCHITECTURE.md` based on what actually exist
    - `App.swift` (or equivalent `@main` entry point)
    - Test folders and what they cover
    - Any `.mcp.json`, `Info.plist`, entitlements, capabilities
-   - SPM dependencies in `Package.swift` or `.xcodeproj`
+   - SPM dependencies in `Package.resolved`
 
 3. **Infer from code, don't guess:**
-   - **Persistence:** look for `@Model`, `Core Data`, `UserDefaults`, `FileManager`, `Keychain` usage
-   - **Networking:** look for `URLSession`, `Alamofire`, `URLRequest`, async networking patterns
-   - **State management:** count `@Observable` classes, `@State`, `@Environment`, `@AppStorage` usage
-   - **Module boundaries:** see what depends on what (imports across folders)
-   - **Background:** look for `BGTaskScheduler`, `WidgetKit`, `UNUserNotificationCenter`
-   - **Auth/security:** look for Keychain, biometric APIs, secure enclave
-   - **Testing:** check what types are tested, ratio of unit to integration
+   - **Persistence:** `@Model`, Core Data, `UserDefaults`, `FileManager`, Keychain
+   - **Networking:** `URLSession`, Supabase SDK, async patterns
+   - **State management:** `@Observable`, `@State`, `@Environment`, `@AppStorage`
+   - **Module boundaries:** cross-folder imports
+   - **Background:** `BGTaskScheduler`, `WidgetKit`, `UNUserNotificationCenter`
+   - **Auth/security:** Keychain, biometric APIs, RLS
+   - **Testing:** what's tested, unit vs integration ratio
 
-4. **Write `docs/ARCHITECTURE.md`** with these sections:
-   - **Snapshot** — when this audit was run, code state at that moment
-   - **Overview** — one paragraph describing the architecture as observed
-   - **Module structure** — actual folder/target organization with brief descriptions
-   - **Data flow** — how data actually moves through the system, traced from one real example end to end
-   - **State management** — what state lives where, observed from the code
-   - **Persistence** — what's stored where, in what format (with file references)
-   - **Networking** — actual network layer if any, or "no network layer present"
-   - **Background & system integration** — observed widgets, notifications, background tasks
-   - **Security & privacy** — observed protections, with caveats about what was NOT verified
-   - **Testing coverage** — what types have tests, what doesn't, observed gaps
-   - **Drift from intent** — if `docs/ARCHITECTURE.md` already existed, list places where the code has drifted from the original architecture
-   - **Smells observed** — things that look architecturally suspicious (god objects, tight coupling, missing abstractions). Be honest but not preachy.
-   - **Open questions** — things the audit couldn't determine from code alone
+4. **Write `docs/audits/YYYY-MM-DD-architecture.md`** (use today's date) with sections:
+   - **Snapshot** — audit date, head commit, branch, working-tree state
+   - **Overview** — one paragraph, architecture as observed
+   - **Module structure** — actual folder/target organization
+   - **Data flow** — one real example traced end-to-end
+   - **State management** — where state lives, from the code
+   - **Persistence** — what's stored where, with file references
+   - **Networking** — observed network layer or "none"
+   - **Background & system integration** — widgets, notifications, background tasks
+   - **Security & privacy** — observed protections + what was NOT verified
+   - **Testing coverage** — what's tested, gaps
+   - **Drift from spec** — places where code has drifted from `docs/ARCHITECTURE.md`
+   - **Smells observed** — factually suspicious patterns
+   - **Open questions** — things code alone couldn't answer
+   - **Diff vs prior audit** — what changed since the last dated audit file
 
-5. **End with a summary**: what changed since the last audit (if any), key drift points, and 2-3 concrete things worth addressing.
+5. **End with a summary**: key drift points, and 2-3 concrete things worth addressing before the next feature lands.
 
 ## Style rules
 
-- **Cite specific files.** "ViewModels are `@Observable` classes" → "ViewModels are `@Observable` classes (see `App/ViewModels/SettingsViewModel.swift:12`)."
-- **Don't editorialize beyond evidence.** If a pattern is suspicious, describe it factually first, opinion second.
+- **Cite specific files.** `ViewModels/ListingDiscoveryViewModel.swift:42`, not "the discovery view model".
+- **Don't editorialize beyond evidence.** Describe factually first, opinion second.
 - **Don't invent architecture that isn't there.** If there's no real persistence layer, say so plainly.
-- Mark inferences as inferences when you can't verify ("Appears to use SwiftData based on `@Model` usage in 4 files; no migration files found yet").
+- Mark inferences as inferences ("Appears to use SwiftData based on `@Model` usage in 4 files; no migration files found").
 
 ## Important
 
-If `docs/ARCHITECTURE.md` already exists, **back it up to `docs/ARCHITECTURE.previous.md`** before overwriting, so the original intent doc isn't lost. Mention this in your summary.
+- **Never overwrite `docs/ARCHITECTURE.md`.** That file is the lean, stable spec.
+- **Never create `docs/ARCHITECTURE.previous.md`.** Historical audits live in `docs/audits/` with dated filenames — that's the archive.
+- If `docs/audits/` doesn't exist, create it.
 
 ## When this command earns its place
 
-- After 3-5 features have been built
+- After 3–5 features have been built
 - Before a major refactor (establish baseline)
 - When onboarding someone (or future-you) to the project
 - When you suspect drift between intent and reality

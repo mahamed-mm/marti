@@ -20,6 +20,13 @@ struct ListingCardView: View {
     @Environment(\.currencyService) private var currencyService
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
+    // Internal rhythm inside the .full card. Not promoted to the Spacing
+    // scale — these are card-internal meta-row gaps, not a scale other
+    // components share. `Spacing.cardPadding` handles the outer box padding.
+    private static let titleToLocationGap: CGFloat = 10
+    private static let locationToRatingGap: CGFloat = 6
+    private static let ratingToPriceGap:    CGFloat = 12
+
     var body: some View {
         switch variant {
         case .full:        fullCard
@@ -51,7 +58,7 @@ struct ListingCardView: View {
                     .font(.martiHeading5)
                     .foregroundStyle(Color.textPrimary)
                     .lineLimit(1)
-                    .padding(.top, 14)
+                    .padding(.top, Spacing.cardPadding)
 
                 HStack(spacing: Spacing.sm) {
                     Image(systemName: "mappin.and.ellipse")
@@ -61,7 +68,7 @@ struct ListingCardView: View {
                         .lineLimit(1)
                 }
                 .foregroundStyle(Color.textSecondary)
-                .padding(.top, 10)
+                .padding(.top, Self.titleToLocationGap)
 
                 Group {
                     if let rating = listing.averageRating {
@@ -72,13 +79,13 @@ struct ListingCardView: View {
                             .foregroundStyle(Color.textTertiary)
                     }
                 }
-                .padding(.top, 6)
+                .padding(.top, Self.locationToRatingGap)
 
                 priceLine()
-                    .padding(.top, 12)
+                    .padding(.top, Self.ratingToPriceGap)
             }
-            .padding(.horizontal, 14)
-            .padding(.bottom, 14)
+            .padding(.horizontal, Spacing.cardPadding)
+            .padding(.bottom, Spacing.cardPadding)
         }
         .background(Color.surfaceDefault)
         .clipShape(RoundedRectangle(cornerRadius: Radius.md))
@@ -118,6 +125,12 @@ struct ListingCardView: View {
                 .truncationMode(.tail)
                 .padding(.top, Spacing.md)
 
+            Text(listing.neighborhood)
+                .font(.martiCaption)
+                .foregroundStyle(Color.textTertiary)
+                .lineLimit(1)
+                .padding(.top, Spacing.xs)
+
             railMetaRow
                 .padding(.top, Spacing.xs)
         }
@@ -126,15 +139,13 @@ struct ListingCardView: View {
         .accessibilityLabel(railAccessibilityLabel)
     }
 
-    /// Single top-anchored overlay containing both the Verified chip (leading)
-    /// and the heart button (trailing). Combining them into one HStack avoids
-    /// the two-overlay pattern where a second `.overlay(alignment: .topTrailing)`
-    /// sometimes failed to render on top of a `.clipShape`'d photo.
+    /// Single top-anchored overlay holding only the heart button (trailing).
+    /// The Verified signal has moved inline into `railMetaRow` so the photo
+    /// stays uncluttered and verified reads as a subtle meta-row accent rather
+    /// than a floating chip. Leading `Spacer` preserves trailing alignment
+    /// regardless of content on the left.
     private var photoOverlay: some View {
         HStack(alignment: .center, spacing: 0) {
-            if listing.isVerified {
-                VerifiedBadgeView()
-            }
             Spacer(minLength: 0)
             FavoriteHeartButton(isSaved: isSaved, size: .small, onToggle: onToggleSave)
         }
@@ -147,6 +158,11 @@ struct ListingCardView: View {
         if let rating = listing.averageRating {
             HStack(spacing: Spacing.sm) {
                 Text(usdString())
+                if listing.isVerified {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Color.coreAccent)
+                }
                 Text("·")
                 Image(systemName: "star.fill")
                     .foregroundStyle(Color.statusWarning)
@@ -157,10 +173,17 @@ struct ListingCardView: View {
             .lineLimit(1)
             .minimumScaleFactor(0.9)
         } else {
-            Text(usdString())
-                .font(.martiCaption)
-                .foregroundStyle(Color.textSecondary)
-                .lineLimit(1)
+            HStack(spacing: Spacing.sm) {
+                Text(usdString())
+                if listing.isVerified {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Color.coreAccent)
+                }
+            }
+            .font(.martiCaption)
+            .foregroundStyle(Color.textSecondary)
+            .lineLimit(1)
         }
     }
 
@@ -168,9 +191,9 @@ struct ListingCardView: View {
         let verified = listing.isVerified ? ", Verified" : ""
         if let rating = listing.averageRating {
             let ratingText = String(format: "%.1f", rating)
-            return "\(listing.title), \(usdString()) per night, rated \(ratingText) stars\(verified)"
+            return "\(listing.title), \(listing.neighborhood), \(usdString()) per night, rated \(ratingText) stars\(verified)"
         } else {
-            return "\(listing.title), \(usdString()) per night, new listing\(verified)"
+            return "\(listing.title), \(listing.neighborhood), \(usdString()) per night, new listing\(verified)"
         }
     }
 
@@ -183,7 +206,7 @@ struct ListingCardView: View {
 
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text(listing.title)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.martiLabel2)
                     .foregroundStyle(Color.textPrimary)
                     .lineLimit(1)
                 Text(listing.city)
