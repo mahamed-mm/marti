@@ -178,7 +178,7 @@ struct DiscoveryView: View {
 
     private var searchBar: some View {
         HStack(spacing: Spacing.md) {
-            Image(systemName: "magnifyingglass")
+            Image(systemName: searchBarHasSummary ? "slider.horizontal.3" : "magnifyingglass")
                 .foregroundStyle(Color.textTertiary)
             Text(searchBarText)
                 .font(.martiBody)

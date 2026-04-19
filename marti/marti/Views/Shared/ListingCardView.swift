@@ -142,7 +142,7 @@ struct ListingCardView: View {
                 Text(usdString())
                 Text("·")
                 Image(systemName: "star.fill")
-                    .foregroundStyle(Color.coreAccent)
+                    .foregroundStyle(Color.statusWarning)
                 Text(String(format: "%.1f", rating))
             }
             .font(.martiCaption)
