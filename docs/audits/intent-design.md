@@ -12,30 +12,30 @@ Dark mode only in v1. No light mode. All colors are hardcoded to the dark palett
 
 ### Semantic Tokens
 
-| Token | Hex | Usage |
-|---|---|---|
-| `canvas` | `#010913` | App background, screen bg |
-| `surfaceDefault` | `#131D2B` | Cards, tab bar, review cards |
-| `surfaceElevated` | `#243346` | Modals, bottom sheets, input fields, host card |
-| `surfaceHighlight` | `#1A2A3D` | Pressed/hover states, skeleton shimmer |
-| `textPrimary` | `#FFFFFF` | Headings, titles, primary labels, prices |
-| `textSecondary` | `#BDC4CB` | Body text, descriptions, metadata |
-| `textTertiary` | `#95A0AE` | Placeholders, footnotes, timestamps, terms text (5:1 contrast, WCAG AA compliant) |
-| `coreAccent` | `#84E9FF` | CTAs, links, active tab, active chips, send button, page dots |
-| `corePrimary` | `#054184` | Secondary selections, subtle accent backgrounds |
-| `statusSuccess` | `#62F1C6` | Verified badge, confirmed status, "Verified Host" label |
-| `statusDanger` | `#FF649C` | Filled heart (saved), declined status, cancel actions, sign out, error states |
-| `statusWarning` | `#FEEB87` | Star ratings, pending status badge, cancellation policy icon |
-| `divider` | `rgba(255,255,255,0.08)` | 1px section dividers, list separators |
+| Token              | Hex                      | Usage                                                                             |
+| ------------------ | ------------------------ | --------------------------------------------------------------------------------- |
+| `canvas`           | `#010913`                | App background, screen bg                                                         |
+| `surfaceDefault`   | `#131D2B`                | Cards, tab bar, review cards                                                      |
+| `surfaceElevated`  | `#243346`                | Modals, bottom sheets, input fields, host card                                    |
+| `surfaceHighlight` | `#1A2A3D`                | Pressed/hover states, skeleton shimmer                                            |
+| `textPrimary`      | `#FFFFFF`                | Headings, titles, primary labels, prices                                          |
+| `textSecondary`    | `#BDC4CB`                | Body text, descriptions, metadata                                                 |
+| `textTertiary`     | `#95A0AE`                | Placeholders, footnotes, timestamps, terms text (5:1 contrast, WCAG AA compliant) |
+| `coreAccent`       | `#84E9FF`                | CTAs, links, active tab, active chips, send button, page dots                     |
+| `corePrimary`      | `#054184`                | Secondary selections, subtle accent backgrounds                                   |
+| `statusSuccess`    | `#62F1C6`                | Verified badge, confirmed status, "Verified Host" label                           |
+| `statusDanger`     | `#FF649C`                | Filled heart (saved), declined status, cancel actions, sign out, error states     |
+| `statusWarning`    | `#FEEB87`                | Star ratings, pending status badge, cancellation policy icon                      |
+| `divider`          | `rgba(255,255,255,0.08)` | 1px section dividers, list separators                                             |
 
 ### Status Badge Colors
 
-| Status | Background | Text |
-|---|---|---|
-| Verified | `rgba(98,241,198,0.15)` | `#62F1C6` |
-| Confirmed | `rgba(98,241,198,0.15)` | `#62F1C6` |
-| Pending | `rgba(254,235,135,0.15)` | `#FEEB87` |
-| Declined | `rgba(255,100,156,0.15)` | `#FF649C` |
+| Status    | Background               | Text      |
+| --------- | ------------------------ | --------- |
+| Verified  | `rgba(98,241,198,0.15)`  | `#62F1C6` |
+| Confirmed | `rgba(98,241,198,0.15)`  | `#62F1C6` |
+| Pending   | `rgba(254,235,135,0.15)` | `#FEEB87` |
+| Declined  | `rgba(255,100,156,0.15)` | `#FF649C` |
 
 ### Color Rules
 
@@ -51,17 +51,17 @@ System font only (`system-ui` / San Francisco). No custom fonts in v1. This ensu
 
 ### Scale
 
-| Style | Size | Line Height | Weight | Usage |
-|---|---|---|---|---|
-| `heading3` | 24pt | 28pt | Bold (700) | Screen titles ("Peaceful Villa in Hodan") |
-| `heading4` | 20pt | 24pt | Bold (700) | Section headings ("What this place offers", "Price details") |
-| `heading5` | 16pt | 20pt | Bold (700) | Card titles, subsection headings, prices |
-| `bodyDefault` | 16pt | 24pt | Regular (400) | Descriptions, body text |
-| `footnote` | 14pt | 20pt | Regular (400) | Secondary info, metadata, location |
-| `caption` | 12pt | 16pt | Regular (400) | Timestamps, badge text, SOS currency |
-| `label1` | 16pt | 24pt | Bold (700) | Button text |
-| `label2` | 14pt | 20pt | Bold (700) | Chip text, small button text |
-| `tabLabel` | 10pt | — | Medium (500/600) | Tab bar labels |
+| Style         | Size | Line Height | Weight           | Usage                                                        |
+| ------------- | ---- | ----------- | ---------------- | ------------------------------------------------------------ |
+| `heading3`    | 24pt | 28pt        | Bold (700)       | Screen titles ("Peaceful Villa in Hodan")                    |
+| `heading4`    | 20pt | 24pt        | Bold (700)       | Section headings ("What this place offers", "Price details") |
+| `heading5`    | 16pt | 20pt        | Bold (700)       | Card titles, subsection headings, prices                     |
+| `bodyDefault` | 16pt | 24pt        | Regular (400)    | Descriptions, body text                                      |
+| `footnote`    | 14pt | 20pt        | Regular (400)    | Secondary info, metadata, location                           |
+| `caption`     | 12pt | 16pt        | Regular (400)    | Timestamps, badge text, SOS currency                         |
+| `label1`      | 16pt | 24pt        | Bold (700)       | Button text                                                  |
+| `label2`      | 14pt | 20pt        | Bold (700)       | Chip text, small button text                                 |
+| `tabLabel`    | 10pt | —           | Medium (500/600) | Tab bar labels                                               |
 
 ### Weight Conventions
 
@@ -84,15 +84,15 @@ System font only (`system-ui` / San Francisco). No custom fonts in v1. This ensu
 
 ### Spacing Scale
 
-| Token | Value | Usage |
-|---|---|---|
-| `xs` | 2pt | Micro gaps (badge icon to text) |
-| `sm` | 4pt | Tight gaps (star to rating text, tab icon to label) |
-| `md` | 8pt | Default element gap (within card content rows) |
-| `base` | 16pt | Screen edge padding, card content padding, section gaps |
-| `lg` | 24pt | Between major sections, generous padding areas |
-| `xl` | 32pt | Between section groups, modal content padding |
-| `xxl` | 40pt | Large whitespace (onboarding, confirmation screens) |
+| Token  | Value | Usage                                                   |
+| ------ | ----- | ------------------------------------------------------- |
+| `xs`   | 2pt   | Micro gaps (badge icon to text)                         |
+| `sm`   | 4pt   | Tight gaps (star to rating text, tab icon to label)     |
+| `md`   | 8pt   | Default element gap (within card content rows)          |
+| `base` | 16pt  | Screen edge padding, card content padding, section gaps |
+| `lg`   | 24pt  | Between major sections, generous padding areas          |
+| `xl`   | 32pt  | Between section groups, modal content padding           |
+| `xxl`  | 40pt  | Large whitespace (onboarding, confirmation screens)     |
 
 ### Layout Conventions
 
@@ -109,21 +109,21 @@ iPhone 15: 390x844pt. All screens designed at this size.
 
 ## Corner Radius
 
-| Token | Value | Usage |
-|---|---|---|
-| `xs` | 4pt | Skeleton shimmer bars, inline tags |
-| `sm` | 8pt | Input fields, buttons, small cards, booking cards |
-| `md` | 12pt | Listing cards, photo images, review cards, host card, map placeholder |
-| `lg` | 24pt | Bottom sheets (top corners), modals |
-| `xl` | 40pt | Search bar (pill shape), city chips, status badges |
-| `full` | 100pt | Avatars, circular buttons, notification dots |
+| Token  | Value | Usage                                                                 |
+| ------ | ----- | --------------------------------------------------------------------- |
+| `xs`   | 4pt   | Skeleton shimmer bars, inline tags                                    |
+| `sm`   | 8pt   | Input fields, buttons, small cards, booking cards                     |
+| `md`   | 12pt  | Listing cards, photo images, review cards, host card, map placeholder |
+| `lg`   | 24pt  | Bottom sheets (top corners), modals                                   |
+| `xl`   | 40pt  | Search bar (pill shape), city chips, status badges                    |
+| `full` | 100pt | Avatars, circular buttons, notification dots                          |
 
 ## Shadow / Elevation
 
-| Level | Y Offset | Blur | Color | Usage |
-|---|---|---|---|---|
-| `sm` | 1pt | 3pt | `rgba(22,22,22,0.15)` | Cards (subtle depth) |
-| `lg` | 4pt | 16pt | `rgba(22,22,22,0.15)` | Map price pins, elevated panels |
+| Level | Y Offset | Blur | Color                 | Usage                           |
+| ----- | -------- | ---- | --------------------- | ------------------------------- |
+| `sm`  | 1pt      | 3pt  | `rgba(22,22,22,0.15)` | Cards (subtle depth)            |
+| `lg`  | 4pt      | 16pt | `rgba(22,22,22,0.15)` | Map price pins, elevated panels |
 
 Shadows are subtle on dark backgrounds. Most elevation is communicated through surface color steps (canvas → surfaceDefault → surfaceElevated), not shadows.
 
@@ -135,13 +135,13 @@ Outline icons, 1.5pt stroke weight, 24x24pt default size. Inspired by Airbnb's c
 
 ### Sizing
 
-| Context | Size | Stroke |
-|---|---|---|
-| Tab bar icons | 24x24pt | 1.5pt (inactive), 2pt (active) |
-| Amenity list icons | 24x24pt | 1.5pt |
-| Nav bar action icons | 20x20pt | 2pt |
-| Inline metadata icons (location, star) | 14pt | — (filled for stars) |
-| Badge icons (checkmark) | 12-14pt | — (filled) |
+| Context                                | Size    | Stroke                         |
+| -------------------------------------- | ------- | ------------------------------ |
+| Tab bar icons                          | 24x24pt | 1.5pt (inactive), 2pt (active) |
+| Amenity list icons                     | 24x24pt | 1.5pt                          |
+| Nav bar action icons                   | 20x20pt | 2pt                            |
+| Inline metadata icons (location, star) | 14pt    | — (filled for stars)           |
+| Badge icons (checkmark)                | 12-14pt | — (filled)                     |
 
 ### Color Treatment
 
@@ -154,30 +154,30 @@ Outline icons, 1.5pt stroke weight, 24x24pt default size. Inspired by Airbnb's c
 
 ### SF Symbol Mapping (for implementation)
 
-| Design Icon | SF Symbol |
-|---|---|
-| Search | `magnifyingglass` |
-| Heart | `heart` / `heart.fill` |
-| Calendar | `calendar` |
-| Message | `bubble.left` |
-| Profile | `person` |
-| Back | `chevron.left` |
-| Close | `xmark` |
-| Share | `square.and.arrow.up` |
-| Filter | `line.3.horizontal.decrease` |
-| Map | `map` |
-| List | `list.bullet` |
-| Star | `star.fill` |
-| Checkmark | `checkmark` |
-| Settings | `gearshape` |
-| Help | `questionmark.circle` |
-| Bell | `bell` |
-| Shield | `shield` |
-| Camera | `camera` |
-| Lightning | `bolt` |
-| WiFi | `wifi` |
-| Car | `car` |
-| Parking | `p.square` |
+| Design Icon | SF Symbol                    |
+| ----------- | ---------------------------- |
+| Search      | `magnifyingglass`            |
+| Heart       | `heart` / `heart.fill`       |
+| Calendar    | `calendar`                   |
+| Message     | `bubble.left`                |
+| Profile     | `person`                     |
+| Back        | `chevron.left`               |
+| Close       | `xmark`                      |
+| Share       | `square.and.arrow.up`        |
+| Filter      | `line.3.horizontal.decrease` |
+| Map         | `map`                        |
+| List        | `list.bullet`                |
+| Star        | `star.fill`                  |
+| Checkmark   | `checkmark`                  |
+| Settings    | `gearshape`                  |
+| Help        | `questionmark.circle`        |
+| Bell        | `bell`                       |
+| Shield      | `shield`                     |
+| Camera      | `camera`                     |
+| Lightning   | `bolt`                       |
+| WiFi        | `wifi`                       |
+| Car         | `car`                        |
+| Parking     | `p.square`                   |
 
 ## Component Patterns
 
@@ -268,19 +268,20 @@ All animations wrapped in `@Environment(\.accessibilityReduceMotion)` check. Whe
 
 ### Haptics
 
-| Interaction | Feedback |
-|---|---|
-| Heart toggle | `.impact(.light)` |
-| Booking submitted | `.notification(.success)` |
-| Error state | `.notification(.error)` |
-| Star rating selection | `.selection` |
-| Pull-to-refresh | `.impact(.medium)` |
+| Interaction           | Feedback                  |
+| --------------------- | ------------------------- |
+| Heart toggle          | `.impact(.light)`         |
+| Booking submitted     | `.notification(.success)` |
+| Error state           | `.notification(.error)`   |
+| Star rating selection | `.selection`              |
+| Pull-to-refresh       | `.impact(.medium)`        |
 
 ## Accessibility
 
 ### Dynamic Type
 
 Support up to AX5 (largest accessibility size). Specific requirements:
+
 - Horizontal stat grids (Profile, Host Profile) reflow to vertical stack at `.accessibility1` and above using `ViewThatFits`
 - Dual-currency price display wraps to second line at large sizes
 - Tab bar labels truncate gracefully (icons remain primary navigation)
@@ -305,6 +306,7 @@ Support up to AX5 (largest accessibility size). Specific requirements:
 ### Touch Targets
 
 Every interactive element: 44x44pt minimum tappable area. This applies to:
+
 - Heart icons (24pt visual, 44pt tap area)
 - City chips (visual height ~36pt, tap area 44pt)
 - Map price pins (visual ~36pt, tap area 44pt)
@@ -355,15 +357,15 @@ None. All design decisions are resolved for v1.
 
 23 screens organized by user flow in the Paper design file ("Recurly Designs" → "Marti UI designs"):
 
-| Row | Section | Screens |
-|---|---|---|
-| 1 | Onboarding & Auth | 1.1 Onboarding, 1.2 Auth Sheet, 1.3 Phone OTP, 1.4 OTP Verification, 1.5 Create Profile |
-| 2 | Discovery & Browse | 2.1 Discover List, 2.2 Discover Map, 2.3 Filters, 2.4 Listing Detail, 2.5 Host Profile |
-| 3 | Booking Flow | 3.1 Booking Request, 3.2 Booking Confirmation, 3.3 My Bookings, 3.4 Booking Detail |
-| 4 | Engagement | 4.1 Messages Tab, 4.2 Chat Thread, 4.3 Saved Listings, 4.4 Write Review |
-| 5 | Profile & Settings | 5.1 Profile Tab, 5.2 Settings |
-| 6 | Utility States | 6.1 Loading Skeleton, 6.2 Error State, 6.3 Empty States |
+| Row | Section            | Screens                                                                                 |
+| --- | ------------------ | --------------------------------------------------------------------------------------- |
+| 1   | Onboarding & Auth  | 1.1 Onboarding, 1.2 Auth Sheet, 1.3 Phone OTP, 1.4 OTP Verification, 1.5 Create Profile |
+| 2   | Discovery & Browse | 2.1 Discover List, 2.2 Discover Map, 2.3 Filters, 2.4 Listing Detail, 2.5 Host Profile  |
+| 3   | Booking Flow       | 3.1 Booking Request, 3.2 Booking Confirmation, 3.3 My Bookings, 3.4 Booking Detail      |
+| 4   | Engagement         | 4.1 Messages Tab, 4.2 Chat Thread, 4.3 Saved Listings, 4.4 Write Review                 |
+| 5   | Profile & Settings | 5.1 Profile Tab, 5.2 Settings                                                           |
+| 6   | Utility States     | 6.1 Loading Skeleton, 6.2 Error State, 6.3 Empty States                                 |
 
 ---
 
-*Last updated: 2026-04-18*
+_Last updated: 2026-04-18_

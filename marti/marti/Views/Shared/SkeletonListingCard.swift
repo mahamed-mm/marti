@@ -13,9 +13,9 @@ struct SkeletonListingCard: View {
                 bar(width: 80,  height: 14) // rating
                 bar(width: 160, height: 16) // price
             }
-            .padding(.horizontal, 14)
-            .padding(.top, 14)
-            .padding(.bottom, 14)
+            .padding(.horizontal, Spacing.cardPadding)
+            .padding(.top, Spacing.cardPadding)
+            .padding(.bottom, Spacing.cardPadding)
         }
         .background(Color.surfaceDefault)
         .clipShape(RoundedRectangle(cornerRadius: Radius.md))

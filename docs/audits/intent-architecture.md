@@ -102,29 +102,29 @@ User taps "Request to Book"
 
 ## State Management
 
-| State | Where it lives | How it's accessed |
-|---|---|---|
-| Auth state (current user, token) | `AuthManager` (`@Observable`) | `.environment(AuthManager.self)` on app root |
-| Screen-specific state | Per-screen ViewModel (`@Observable`) | `@State` in the view that owns it |
-| View-local state (toggles, sheets) | `@State` in the view | Direct |
-| Cached data (listings, bookings) | SwiftData `ModelContext` | `@Query` in views, `ModelContext` in services |
-| Ephemeral UI state (filters, search) | ViewModel properties | Bound to view via `@Bindable` |
+| State                                | Where it lives                       | How it's accessed                             |
+| ------------------------------------ | ------------------------------------ | --------------------------------------------- |
+| Auth state (current user, token)     | `AuthManager` (`@Observable`)        | `.environment(AuthManager.self)` on app root  |
+| Screen-specific state                | Per-screen ViewModel (`@Observable`) | `@State` in the view that owns it             |
+| View-local state (toggles, sheets)   | `@State` in the view                 | Direct                                        |
+| Cached data (listings, bookings)     | SwiftData `ModelContext`             | `@Query` in views, `ModelContext` in services |
+| Ephemeral UI state (filters, search) | ViewModel properties                 | Bound to view via `@Bindable`                 |
 
 No global state beyond `AuthManager`. No singletons. No `EnvironmentObject` — use the typed `.environment()` API from iOS 17.
 
 ## Persistence
 
-| Data | Storage | Reason |
-|---|---|---|
-| Auth tokens | Keychain (via Supabase SDK) | Security — never in UserDefaults or SwiftData |
-| Listings cache | SwiftData | Offline browsing, fast launch |
-| Bookings cache | SwiftData | View past/upcoming bookings offline |
-| Messages cache | SwiftData | Read conversation history offline |
-| Saved listings | SwiftData (synced to Supabase) | Available offline, persisted across devices via Supabase |
-| User profile | SwiftData (synced to Supabase) | Quick access without network round-trip |
-| USD/SOS exchange rate | UserDefaults (daily cache) | Simple key-value, no model needed |
-| Image cache | URLCache (disk) + NSCache (memory) | System-managed eviction, no SwiftData bloat |
-| Onboarding/first-launch flags | UserDefaults | Simple booleans |
+| Data                          | Storage                            | Reason                                                   |
+| ----------------------------- | ---------------------------------- | -------------------------------------------------------- |
+| Auth tokens                   | Keychain (via Supabase SDK)        | Security — never in UserDefaults or SwiftData            |
+| Listings cache                | SwiftData                          | Offline browsing, fast launch                            |
+| Bookings cache                | SwiftData                          | View past/upcoming bookings offline                      |
+| Messages cache                | SwiftData                          | Read conversation history offline                        |
+| Saved listings                | SwiftData (synced to Supabase)     | Available offline, persisted across devices via Supabase |
+| User profile                  | SwiftData (synced to Supabase)     | Quick access without network round-trip                  |
+| USD/SOS exchange rate         | UserDefaults (daily cache)         | Simple key-value, no model needed                        |
+| Image cache                   | URLCache (disk) + NSCache (memory) | System-managed eviction, no SwiftData bloat              |
+| Onboarding/first-launch flags | UserDefaults                       | Simple booleans                                          |
 
 SwiftData models mirror Supabase tables but are not the API layer. Codable structs decode from Supabase JSON, then map to SwiftData `@Model` objects for local storage. Full listing data is cached — with 30-50 listings at ~2KB each, total cache is under 100KB. Caching partial data would require a second fetch on detail tap, which is slow on Somali networks. Cache everything, display instantly, refresh in background when online.
 
@@ -157,14 +157,14 @@ SwiftData models mirror Supabase tables but are not the API layer. Codable struc
 
 ## Testing Strategy
 
-| Layer | Tested? | How |
-|---|---|---|
-| ViewModels | Yes | Swift Testing (`@Test`, `#expect`). Mock services via protocol conformance. Test state transitions, error handling, auth gates. |
-| Services | Yes | Swift Testing against mock Supabase responses. Test request construction, response parsing, error mapping. |
-| Models | Yes (if logic exists) | Swift Testing for computed properties, validation, Codable conformance. |
-| Views | No | Not tested directly. Views are thin — logic lives in ViewModels. |
-| Integration | Manual | Test against Supabase dev project. No automated integration tests in v1. |
-| Snapshots | No | Not in v1. Reserved for design-system primitives if needed later. |
+| Layer       | Tested?               | How                                                                                                                             |
+| ----------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| ViewModels  | Yes                   | Swift Testing (`@Test`, `#expect`). Mock services via protocol conformance. Test state transitions, error handling, auth gates. |
+| Services    | Yes                   | Swift Testing against mock Supabase responses. Test request construction, response parsing, error mapping.                      |
+| Models      | Yes (if logic exists) | Swift Testing for computed properties, validation, Codable conformance.                                                         |
+| Views       | No                    | Not tested directly. Views are thin — logic lives in ViewModels.                                                                |
+| Integration | Manual                | Test against Supabase dev project. No automated integration tests in v1.                                                        |
+| Snapshots   | No                    | Not in v1. Reserved for design-system primitives if needed later.                                                               |
 
 One test file per ViewModel, mirroring source structure. Mock services conform to the same protocols as production services. No mocking frameworks.
 
@@ -182,4 +182,4 @@ None. All architectural decisions are resolved for v1.
 
 ---
 
-*Last updated: 2026-04-17*
+_Last updated: 2026-04-17_

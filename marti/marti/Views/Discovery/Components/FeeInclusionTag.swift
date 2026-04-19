@@ -3,9 +3,10 @@ import SwiftUI
 /// Dismissible chip floated above the map or the selected-listing card that
 /// informs travelers displayed prices include all fees.
 ///
-/// Stateless by design — session-scoped dismissal lives on
-/// `ListingDiscoveryViewModel.feeTagDismissed`, and the caller hides this view
-/// when that flag is true.
+/// Stateless by design — dismissal lives on
+/// `ListingDiscoveryViewModel.feeTagDismissed`, backed by `UserDefaults` so
+/// the tag stays gone across app launches (trust messaging is one-time, not a
+/// per-session nag). The caller hides this view when that flag is true.
 struct FeeInclusionTag: View {
     let onDismiss: () -> Void
 

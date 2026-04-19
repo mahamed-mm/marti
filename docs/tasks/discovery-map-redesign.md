@@ -41,10 +41,11 @@ Add computed header strings, session-scoped fee-tag dismissal, a computed `selec
   - `selectPin_clearsWhenListingNotInCurrentResults`
   - `selectionSurvives_refreshThatStillContainsListing`
   - `dismissFeeTag_flipsFeeTagDismissed`
-  - `feeTagDismissed_doesNotPersistAcrossInstances`
+  - `feeTagDismissed_persistsAcrossInstancesSharingUserDefaults` (reversed 2026-04-19 after reviewer feedback)
+  - `feeTagDismissed_doesNotBleedAcrossUserDefaultsSuites`
 - [x] Build passes
 
-**Notes:** `City` has no `displayName` — used `rawValue` (already `"Mogadishu"`/`"Hargeisa"`). Date-range subtitle uses POSIX-locale `DateFormatter` with `"MMM d"` on each end joined by ` – ` for deterministic, locale-stable output. Auto-clear is centralized in a private `clearSelectionIfStale()` called at the end of `loadListings()` so it runs for both success and offline-cached paths. `feeTagDismissed` is NOT persisted — pure instance state.
+**Notes:** `City` has no `displayName` — used `rawValue` (already `"Mogadishu"`/`"Hargeisa"`). Date-range subtitle uses POSIX-locale `DateFormatter` with `"MMM d"` on each end joined by ` – ` for deterministic, locale-stable output. Auto-clear is centralized in a private `clearSelectionIfStale()` called at the end of `loadListings()` so it runs for both success and offline-cached paths. `feeTagDismissed` is persisted to `UserDefaults` under `discovery.feeTagDismissed`, read in `init` and written in `dismissFeeTag()`. (Reversed 2026-04-19 after reviewer feedback that the tag was a per-launch nag, not a one-time trust message.)
 
 ---
 
@@ -79,7 +80,7 @@ Two-line centered pill with circular back + tune buttons flanking it.
 - [x] Build passes
 - [x] HIG-reviewed — ran `hig-reviewer`; issues addressed: Dynamic Type tightening, `.isHeader` trait on the combined pill element, clearer back button label, bumped inter-line spacing from `xs`→`sm`. Deferred: a global custom `ButtonStyle` for press feedback (app-wide convention is `.plain`; changing only this component would look inconsistent — worth a separate hygiene pass).
 
-**Notes:** Pill title/subtitle are non-interactive in v1 (see spec Decisions). Wire `onTune` to `viewModel.isFilterSheetPresented = true` and `onBack` to `viewModel.setViewMode(.list)` in step 8. Three `#Preview` blocks included: default copy, date-range state, and long-title truncation case.
+**Notes:** Pill title/subtitle are non-interactive in v1 (see spec Decisions). Wire `onTune` to `viewModel.isSearchSheetPresented = true` and `onBack` to `viewModel.setViewMode(.list)` in step 8. Three `#Preview` blocks included: default copy, date-range state, and long-title truncation case.
 
 ---
 
@@ -169,7 +170,7 @@ During the test rerun one pre-existing debounce-timing flake reappeared (`filter
 Wire all the new components into the map-mode layout.
 
 - [x] Removed the inline map-mode header entirely — map mode now uses `DiscoveryHeaderPill` instead of the search bar + chip row + icon toggle. List mode retained verbatim (separate `listModeHeader` private view).
-- [x] Overlay `DiscoveryHeaderPill` at the top: title/subtitle bound to `viewModel.headerTitle`/`headerSubtitle`, `onBack` → `viewModel.setViewMode(.list)`, `onTune` → `viewModel.isFilterSheetPresented = true`
+- [x] Overlay `DiscoveryHeaderPill` at the top: title/subtitle bound to `viewModel.headerTitle`/`headerSubtitle`, `onBack` → `viewModel.setViewMode(.list)`, `onTune` → `viewModel.isSearchSheetPresented = true`
 - [x] Bottom chrome stack anchored above `FloatingTabView` using `tabBarHeight` plumbed through from `MainTabView` (which already received it via the `FloatingTabView` content closure — no hardcoding)
   - Fee tag renders when `!viewModel.feeTagDismissed && !viewModel.listings.isEmpty && dynamicTypeSize < .accessibility3` (last guard added after HIG review to avoid AX5 vertical clipping on small devices)
   - Mutually exclusive anchored item: `SelectedListingCard` when `selectedListing != nil`, else `MapEmptyStatePill` when `listings.isEmpty && !isLoading && error == nil`

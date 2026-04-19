@@ -133,7 +133,7 @@ private struct FloatingTabBar<Value: CaseIterable & Hashable & FloatingTabProtoc
                     Capsule().fill(config.background.opacity(0.5))
                 }
         }
-        .shadow(color: .black.opacity(0.3), radius: 8, y: 2)
+        .shadow(token: .tabBar)
         .animation(config.animation, value: activeTab)
         .sensoryFeedback(.impact, trigger: hapticsTrigger)
     }

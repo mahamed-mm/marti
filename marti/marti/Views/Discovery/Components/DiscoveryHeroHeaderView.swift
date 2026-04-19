@@ -1,26 +1,33 @@
 import SwiftUI
 
 /// Editorial header for list-mode Discovery. Leads with a curated one-line
-/// destination promise, with the search capsule and paired map/filter icon
-/// buttons demoted to a single control row beneath it.
+/// destination promise, followed by a single tall search card that opens a
+/// search sheet via the `onTapSearch` callback.
 ///
 /// The title is an evergreen editorial constant (`heroCopy`), deliberately
-/// independent of filter state — the search capsule already surfaces active
-/// filters one row below, and duplicating that in display-weight type made
-/// the screen read as broken.
+/// independent of filter state — the search card already surfaces active
+/// filters on its second line, and duplicating that in display-weight type
+/// made the screen read as broken.
 ///
 /// The map-mode header (`DiscoveryHeaderPill`) is intentionally untouched —
 /// editorial weight belongs above a scrolling feed, not floating over a map.
 /// Map mode still reads `viewModel.headerTitle` / `viewModel.headerSubtitle`.
 struct DiscoveryHeroHeaderView: View {
     @Bindable var viewModel: ListingDiscoveryViewModel
+    let onTapSearch: () -> Void
 
     private static let heroCopy = "Feel at home."
+    private static let heroSubtitle = "Verified stays across Somalia."
+
+    init(viewModel: ListingDiscoveryViewModel, onTapSearch: @escaping () -> Void) {
+        self.viewModel = viewModel
+        self.onTapSearch = onTapSearch
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.base) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             titleRow
-            searchRow
+            searchCard
         }
         .padding(.horizontal, Spacing.screenMargin)
         .padding(.top, Spacing.md)
@@ -29,72 +36,69 @@ struct DiscoveryHeroHeaderView: View {
     // MARK: - Title row
 
     private var titleRow: some View {
-        Text(Self.heroCopy)
-            .font(.martiDisplay)
-            .foregroundStyle(Color.textPrimary)
-            .lineLimit(2)
-            .minimumScaleFactor(0.9)
-            .accessibilityAddTraits(.isHeader)
-    }
-
-    // MARK: - Search row (demoted)
-
-    private var searchRow: some View {
-        HStack(spacing: Spacing.md) {
-            searchCapsule
-            iconButton(systemImage: "map", label: "Switch to map view") {
-                viewModel.setViewMode(.map)
-            }
-            iconButton(systemImage: "line.3.horizontal.decrease", label: "Open filters") {
-                viewModel.isFilterSheetPresented = true
-            }
-        }
-    }
-
-    /// Non-interactive capsule that surfaces the active filter summary (or a
-    /// placeholder when `filter == .default`). Matches the previous header's
-    /// behavior — search itself isn't wired in v1, but the capsule remains so
-    /// users can read at a glance what filters are active.
-    private var searchCapsule: some View {
-        HStack(spacing: Spacing.md) {
-            Image(systemName: hasFilterSummary ? "slider.horizontal.3" : "magnifyingglass")
-                .foregroundStyle(Color.textTertiary)
-            Text(searchCapsuleText)
-                .font(.martiBody)
-                .foregroundStyle(hasFilterSummary ? Color.textPrimary : Color.textTertiary)
-                .lineLimit(1)
-                .truncationMode(.tail)
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, Spacing.base)
-        .frame(height: 48)
-        .frame(maxWidth: .infinity)
-        .background(Capsule().fill(Color.surfaceDefault))
-        // Single glassy top-edge stroke so the capsule reads as an elevated
-        // plane against canvas without a heavy shadow.
-        .overlay(Capsule().strokeBorder(Color.surfaceGlass, lineWidth: 1))
-        .accessibilityHidden(true) // Search not functional in v1
-    }
-
-    /// Builds a circular icon button showing an SF Symbol and applying the header button styling.
-    /// - Parameters:
-    ///   - systemImage: The name of the SF Symbol to display.
-    ///   - label: Accessibility label spoken by assistive technologies.
-    ///   - action: Closure executed when the button is tapped.
-    /// - Returns: A view containing the styled circular icon button with the provided accessibility label.
-    private func iconButton(systemImage: String, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .semibold))
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            Text(Self.heroCopy)
+                .font(.martiDisplay)
                 .foregroundStyle(Color.textPrimary)
-                .frame(width: 48, height: 48)
-                .background(Circle().fill(Color.surfaceElevated))
+                .lineLimit(2)
+                .minimumScaleFactor(0.9)
+            Text(Self.heroSubtitle)
+                .font(.martiFootnote)
+                .foregroundStyle(Color.textSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.9)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Feel at home. Verified stays across Somalia.")
+        .accessibilityAddTraits(.isHeader)
+    }
+
+    // MARK: - Search card
+
+    private var searchCard: some View {
+        Button(action: onTapSearch) {
+            HStack(spacing: Spacing.md) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(Color.textPrimary)
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text(titleCopy)
+                        .font(.martiHeading4)
+                        .foregroundStyle(Color.textPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.9)
+                    Text(searchCapsuleText)
+                        .font(.martiFootnote)
+                        .foregroundStyle(Color.textSecondary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, Spacing.base)
+            .padding(.vertical, Spacing.md + 2)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: Radius.lg)
+                    .fill(Color.surfaceDefault)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.lg)
+                    .strokeBorder(Color.surfaceGlass, lineWidth: 1)
+            )
+            .shadow(token: .island)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(label)
+        .accessibilityLabel("Search stays")
+        .accessibilityHint("Opens search with destination, dates, guests, and filters.")
+        .accessibilityValue(searchCapsuleText)
     }
 
     // MARK: - Search capsule text
+
+    private var titleCopy: String {
+        hasFilterSummary ? "Edit search" : "Where to?"
+    }
 
     private var hasFilterSummary: Bool {
         viewModel.filter != .default
@@ -103,7 +107,7 @@ struct DiscoveryHeroHeaderView: View {
     private var searchCapsuleText: String {
         let f = viewModel.filter
         if f == .default {
-            return "Search Mogadishu, Hargeisa…"
+            return "Anywhere · Any dates · Add guests"
         }
         var parts: [String] = []
         if let city = f.city { parts.append(city.rawValue) }
@@ -120,7 +124,7 @@ struct DiscoveryHeroHeaderView: View {
         } else if let max = f.priceMax {
             parts.append("up to $\(max/100)")
         }
-        return parts.isEmpty ? "Search Mogadishu, Hargeisa…" : parts.joined(separator: " · ")
+        return parts.isEmpty ? "Anywhere · Any dates · Add guests" : parts.joined(separator: " · ")
     }
 
     /// Formats a check-in/check-out pair as a compact date range.

@@ -72,6 +72,14 @@ enum Spacing {
     /// card width identical across every rail in the app rather than drifting
     /// with screen size.
     static let railCardWidth: CGFloat = 170
+
+    /// Inset inside a listing card's content box (horizontal, top, bottom).
+    /// Intentionally tighter than `base` (16) so the content reads snugly fit
+    /// inside the card rather than sitting at screen-edge distance from the
+    /// photo above it. Shared by `ListingCardView` (.full variant) and
+    /// `SkeletonListingCard` so the skeleton stays pixel-accurate with the
+    /// real card.
+    static let cardPadding: CGFloat = 14
 }
 
 // MARK: - Corner radius
@@ -108,4 +116,93 @@ extension Font {
     static let martiCaption    = Font.system(.caption,   weight: .regular)
     static let martiLabel1     = Font.system(.body,      weight: .bold)
     static let martiLabel2     = Font.system(.footnote,  weight: .bold)
+}
+
+// MARK: - Shadows
+
+/// Canonical elevation tokens. Five recipes cover every floating chrome in the
+/// app — small glass overlays, price pins, floating material islands, the tab
+/// bar, and the elevated listing card. Callers apply via `.shadow(_ token:)`.
+///
+/// Dark backgrounds blunt most shadows — these values land close to the spec
+/// in `docs/DESIGN.md §Shadows` and are intentionally few: drift starts with
+/// one-off `(color:radius:y:)` calls.
+enum Shadow {
+    case glassDisc      // heart + verified-icon-disc overlays on card photos
+    case pin            // price pins and clusters on the map
+    case island         // floating material islands (header pill, icon button, search-this-area pill, carousel card, hero card)
+    case tabBar         // FloatingTabView capsule
+    case floatingCard   // elevated SelectedListingCard, MapToggleFAB
+
+    fileprivate var opacity: Double {
+        switch self {
+        case .glassDisc:    0.25
+        case .pin:          0.25
+        case .island:       0.18
+        case .tabBar:       0.30
+        case .floatingCard: 0.35
+        }
+    }
+    fileprivate var radius: CGFloat {
+        switch self {
+        case .glassDisc:    4
+        case .pin:          4
+        case .island:       8
+        case .tabBar:       8
+        case .floatingCard: 16
+        }
+    }
+    fileprivate var yOffset: CGFloat {
+        switch self {
+        case .glassDisc:    1
+        case .pin:          2
+        case .island:       2
+        case .tabBar:       2
+        case .floatingCard: 6
+        }
+    }
+}
+
+extension View {
+    /// Applies a canonical `Shadow` token. Labeled as `token:` to avoid
+    /// colliding with SwiftUI's own `.shadow(_ style:radius:…)` overload.
+    /// Use in place of inline `.shadow(color:radius:x:y:)` calls so
+    /// elevation stays consistent.
+    func shadow(token: Shadow) -> some View {
+        shadow(color: Color.black.opacity(token.opacity), radius: token.radius, x: 0, y: token.yOffset)
+    }
+}
+
+// MARK: - Chrome recipes
+
+extension View {
+    /// Circular `.ultraThinMaterial` disc with a white hairline and the
+    /// `.glassDisc` shadow. Used for small floating overlays on card photos —
+    /// save heart, verified badge, close-button pair on the selected-listing
+    /// card. Caller places a glyph (e.g. `Image(systemName:)`) inside and
+    /// supplies the visible disc diameter; outer hit-target framing stays at
+    /// the callsite.
+    func glassDisc(diameter: CGFloat) -> some View {
+        self
+            .frame(width: diameter, height: diameter)
+            .background(
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        Circle().stroke(Color.white.opacity(0.12), lineWidth: 0.5)
+                    )
+            )
+            .shadow(token: .glassDisc)
+    }
+
+    /// `.ultraThinMaterial` fill with a soft `dividerLine` hairline and the
+    /// `.island` shadow, clipped to the provided shape. Used by floating map
+    /// chrome — header pill, circular icon button, "Search this area" pill,
+    /// and the map listings carousel wrapper.
+    func floatingIslandBackground<S: InsettableShape>(_ shape: S) -> some View {
+        self
+            .background(shape.fill(.ultraThinMaterial))
+            .overlay(shape.stroke(Color.dividerLine.opacity(0.25), lineWidth: 0.5))
+            .shadow(token: .island)
+    }
 }

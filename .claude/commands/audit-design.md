@@ -1,48 +1,53 @@
 ---
-description: Read all SwiftUI views and generate DESIGN.md from observed visual patterns.
+description: Audit SwiftUI views and write a dated design snapshot to docs/audits/.
 ---
 
-Audit the SwiftUI views in this project and write `docs/DESIGN.md` based on what's actually built.
+Audit the SwiftUI views in this project and write `docs/audits/YYYY-MM-DD-design.md` based on what's actually built. **Do not touch `docs/DESIGN.md`** — that's the lean spec, maintained separately.
 
 ## Process
 
 1. **Read context first:**
    - `CLAUDE.md` for stack and conventions
    - `docs/PRD.md` if it exists
-   - Existing `docs/DESIGN.md` if present (to compare intent vs reality)
+   - `docs/DESIGN.md` (the lean spec — treat as intent)
+   - Most recent file in `docs/audits/*-design.md` if present (for diff vs prior audit)
 
 2. **Explore the UI codebase systematically.** Use Glob and Read on:
    - Every `.swift` file under `Views/` (or wherever views live)
    - `Assets.xcassets/` for color sets, image assets, app icons
    - Any custom `View` extensions, `ViewModifier` definitions
-   - Any design system files (`DesignSystem.swift`, `Colors.swift`, etc.)
+   - Any design system files (`DesignSystem.swift`, `DesignTokens.swift`, `Colors.swift`, etc.)
    - `Localizable.xcstrings` or `.strings` files for languages supported
 
 3. **Extract observed patterns:**
    - **Colors used:** every `.foregroundStyle()`, `.background()`, `.tint()`, `Color(...)`. Group into semantic vs hardcoded vs asset catalog.
    - **Fonts used:** every `.font(...)` call. Group by Dynamic Type style and any custom font usage.
    - **Spacing values:** observed `.padding()` values, `Spacer()` minimum lengths, `VStack(spacing:)` values. Identify the implicit spacing scale.
-   - **Icons:** every `Image(systemName:)` (SF Symbols) vs `Image("name")` (custom assets).
+   - **Corner radius:** every `.cornerRadius()`, `.clipShape(.rect(cornerRadius:))`, `RoundedRectangle(cornerRadius:)`. Identify the implicit radius scale.
+   - **Icons:** every `Image(systemName:)` (SF Symbols) vs `Image("name")` (raster).
    - **Component patterns:** repeated view structures (e.g. "card with shadow", "primary button style"). Note where they're defined inline vs extracted.
    - **Animations:** every `.animation(...)`, `withAnimation`, `.transition(...)`. Note style and duration.
-   - **Accessibility:** count of `.accessibilityLabel`, `.accessibilityHint`, `.accessibilityHidden`. Identify gaps.
-   - **Localization:** which strings use `LocalizedStringKey` vs hardcoded string literals.
+   - **Accessibility:** count of `.accessibilityLabel`, `.accessibilityHint`, `.accessibilityHidden`, `.accessibilityAdjustableAction`. Identify gaps.
+   - **Localization:** which strings use `LocalizedStringKey` / `String(localized:)` vs hardcoded literals.
    - **Dark mode:** any explicit `.preferredColorScheme()` or `colorScheme` checks.
 
-4. **Write `docs/DESIGN.md`** with these sections:
-   - **Snapshot** — when this audit ran, view count surveyed
-   - **Visual identity** — one paragraph describing how the app actually looks and feels, observed from the code
-   - **Color system** — semantic colors used, hardcoded values found (with file references), asset catalog colors. Flag any inconsistencies.
-   - **Typography** — Dynamic Type styles in use, any custom font usage, observed hierarchy
+4. **Write `docs/audits/YYYY-MM-DD-design.md`** (use today's date) with sections:
+   - **Snapshot** — audit date, head commit, branch, view count surveyed
+   - **Visual identity** — one paragraph, how the app actually looks and feels, observed from code
+   - **Color system** — semantic colors used, hardcoded values found (with file references), asset catalog colors. Flag inconsistencies.
+   - **Typography** — Dynamic Type styles in use, custom fonts, observed hierarchy
    - **Spacing & layout** — observed spacing scale, padding conventions, anomalies
+   - **Corner radius** — observed radius scale, off-scale literals
    - **Iconography** — SF Symbols used, custom icons used, ratio
-   - **Component patterns** — repeated visual patterns observed across views, with file references. Flag candidates for extraction into reusable components.
-   - **Motion & animation** — observed animation usage, style consistency
-   - **Accessibility coverage** — what's labeled, what's not, observed gaps with file references
-   - **Localization coverage** — what's localized, what's hardcoded, observed gaps
-   - **Drift from intent** — if `docs/DESIGN.md` already existed, list places where the code has drifted
+   - **Component patterns** — repeated visual patterns with file references. Flag candidates for extraction.
+   - **Motion & animation** — observed animation usage, style consistency, Reduce Motion respect
+   - **Accessibility coverage** — what's labeled, what's not, with file references
+   - **Localization coverage** — what's localized, what's hardcoded
+   - **Dark mode** — observed support
+   - **Drift from spec** — places where code has drifted from `docs/DESIGN.md`
    - **Inconsistencies found** — concrete list (e.g. "3 different shades of blue used for primary actions in `Login.swift`, `Settings.swift`, `Profile.swift`")
-   - **Recommended cleanups** — 3-5 specific actions to improve consistency
+   - **Recommended cleanups** — 3–5 specific actions to improve consistency
+   - **Diff vs prior audit** — what changed since the last dated audit file
 
 5. **End with a summary**: top 3 inconsistencies and the most impactful cleanup to do first.
 
@@ -55,11 +60,13 @@ Audit the SwiftUI views in this project and write `docs/DESIGN.md` based on what
 
 ## Important
 
-If `docs/DESIGN.md` already exists, **back it up to `docs/DESIGN.previous.md`** before overwriting. Mention this in your summary.
+- **Never overwrite `docs/DESIGN.md`.** That file is the lean, stable spec.
+- **Never create `docs/DESIGN.previous.md`.** Historical audits live in `docs/audits/` with dated filenames — that's the archive.
+- If `docs/audits/` doesn't exist, create it.
 
 ## When this command earns its place
 
-- After 3-5 views have been built
+- After 3–5 views have been built
 - Before App Store submission, as a visual consistency sanity check
 - When you notice screens looking subtly different
 - When extracting a real design system from grown-organically views

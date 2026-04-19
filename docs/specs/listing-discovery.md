@@ -134,7 +134,7 @@ viewMode: ViewMode                   // .list or .map
 selectedPinID: UUID?                 // Highlighted map pin (map mode)
 savedListingIDs: Set<UUID>           // Local cache of saved state
 hasMorePages: Bool                   // False when last page returned < 20 results
-isFilterSheetPresented: Bool
+isSearchSheetPresented: Bool
 ```
 
 **Actions:**
@@ -178,7 +178,7 @@ setViewMode(_ mode: ViewMode)        // Switch list ↔ map
 - Bottom sheet overlay with compact listing card for selected pin
 - Tapping pin → select, tapping card → navigate to detail
 
-**File:** `Views/Discovery/FilterSheetView.swift`
+**File:** `Views/Discovery/SearchSheetView.swift`
 - Presented as `.sheet` with `.presentationDetents([.large])`
 - City toggle (Mogadishu / Hargeisa)
 - Date range picker (native `DatePicker(.compact)`)
@@ -205,7 +205,7 @@ setViewMode(_ mode: ViewMode)        // Switch list ↔ map
 ```
 Discover Tab (DiscoveryView)
 ├── Tap listing card → push ListingDetailView (NavigationStack)
-├── Tap filter chip → present FilterSheetView (.sheet)
+├── Tap filter chip → present SearchSheetView (.sheet)
 ├── Tap heart (unauthenticated) → present AuthSheetView (.sheet via AuthManager)
 └── Tap map pin → select pin, show compact card in bottom sheet
      └── Tap compact card → push ListingDetailView
