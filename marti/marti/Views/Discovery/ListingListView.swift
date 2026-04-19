@@ -55,7 +55,7 @@ struct ListingListView: View {
 
     private var content: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: Spacing.lg) {
+            LazyVStack(alignment: .leading, spacing: Spacing.xl) {
                 ForEach(viewModel.rails, id: \.category.id) { rail in
                     CategoryRailView(
                         rail: rail,
@@ -68,7 +68,7 @@ struct ListingListView: View {
                     )
                 }
             }
-            .padding(.top, Spacing.base)
+            .padding(.top, Spacing.xl)
             .padding(.bottom, Spacing.lg)
         }
         .background(Color.canvas)

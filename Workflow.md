@@ -6,10 +6,10 @@ The day-to-day loop for building Marti. `CLAUDE.md` owns the *rules* (stack, con
 
 ## Current phase (2026-04-19)
 
-- **Shipped:** Listing Discovery — list view with category rails, map view (Mapbox), filter sheet, skeleton / empty / error / offline states, USD + SOS pricing, saved-heart, SwiftData cache.
+- **Shipped:** Listing Discovery — list view with a `martiDisplay` editorial hero header over horizontal category rails, map view (Mapbox) with pin-to-card selection, filter sheet, skeleton / empty / error / offline states, USD + SOS pricing, saved-heart, SwiftData cache.
+- **HEAD:** `ae05b0e` on `dev` (working tree clean). Both `discovery-map-redesign` and the follow-on icon pass (outlined heart everywhere, verified badge as icon, gold rating stars, new `DiscoveryHeroHeaderView`) are merged. Task trackers `docs/tasks/listing-discovery.md` and `docs/tasks/discovery-map-redesign.md` are both marked **Complete**.
 - **Audited today:** `docs/ARCHITECTURE.md` and `docs/DESIGN.md` were regenerated from shipped code. Original intent docs are preserved at `ARCHITECTURE.previous.md` / `DESIGN.previous.md`.
-- **In progress (uncommitted on `dev`):** `discovery-map-redesign` — adds `Views/Discovery/Components/`, `CategoryRailView`, `FavoriteHeartButton`, `Buttons`, `VerifiedBadgeView`, and DB migrations `003_categories.sql` / `004_sample_categories.sql`. Task tracker: `docs/tasks/discovery-map-redesign.md`.
-- **Next feature:** Listing Detail (P0 per `docs/PRD.md`).
+- **Next feature:** Listing Detail (P0 per `docs/PRD.md`). Start with `/generate-spec listing-detail`.
 - **Placeholders:** Auth (`AuthSheetPlaceholderView` flips a Bool), Saved / Bookings / Messages / Profile (all render `ComingSoonView` stubs in `MainTabView.swift`).
 
 ---
@@ -35,7 +35,7 @@ Re-run both audits after every 3–5 features, and always before App Store submi
 - **`/audit-architecture`** — reads the real code and regenerates `docs/ARCHITECTURE.md`. Backs the previous audit up into `docs/ARCHITECTURE.previous.md` only if no intent doc lives there already; the original intent is preserved by convention.
 - **`/audit-design`** — reads SwiftUI views and regenerates `docs/DESIGN.md`. Same backup convention.
 
-These catch drift that's invisible from inside the work: dead tokens, duplicated chrome, stale file paths, animations that forgot about Reduce Motion. The current DESIGN.md summary lists three live items worth knowing about: no motion tokens yet, no shadow tokens yet, and a duplicated 48pt icon button pattern.
+These catch drift that's invisible from inside the work: dead tokens, duplicated chrome, stale file paths, animations that forgot about Reduce Motion. The current DESIGN.md summary lists three live items worth knowing about: no motion tokens yet, no shadow tokens yet, and the glass-disc recipe now duplicated across three files (`FavoriteHeartButton`, `VerifiedBadgeView.icon`, `SelectedListingCard.closeButton`) — plus the 48pt icon button pattern in two files. Both are the most impactful cleanup targets before Listing Detail adds more sites.
 
 ---
 

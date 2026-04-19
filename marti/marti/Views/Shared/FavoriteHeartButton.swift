@@ -46,8 +46,8 @@ struct FavoriteHeartButton: View {
     }
 
     var body: some View {
-        Image(systemName: isSaved ? "heart.fill" : "heart")
-            .font(.system(size: 16, weight: .semibold))
+        Image(systemName: "heart")
+            .font(.system(size: 16, weight: isSaved ? .semibold : .regular))
             .foregroundStyle(isSaved ? Color.statusDanger : Color.textPrimary)
             .frame(width: size.visibleDiameter, height: size.visibleDiameter)
             .background(

@@ -48,11 +48,15 @@ struct DiscoveryView: View {
 
     // MARK: - Layouts
 
-    /// List view: header sits in the flow, content flows under it. Unchanged
-    /// by the discovery-map-redesign work — only the map mode is restructured.
+    /// List view: editorial hero header over the scrolling rails. The city
+    /// chip row lives directly under the hero (as a sibling) rather than
+    /// inside it, so the hero's display typography isn't competing with the
+    /// chip row for weight inside one container.
     private var listLayout: some View {
         VStack(spacing: 0) {
-            listModeHeader
+            DiscoveryHeroHeaderView(viewModel: viewModel)
+            cityChips
+                .padding(.top, Spacing.md)
             ListingListView(viewModel: viewModel)
         }
     }
@@ -156,55 +160,7 @@ struct DiscoveryView: View {
         viewModel.selectedListing != nil ? Spacing.md + Spacing.sm : Spacing.base
     }
 
-    // MARK: - List-mode header (unchanged behavior)
-
-    private var listModeHeader: some View {
-        VStack(spacing: Spacing.base) {
-            HStack(spacing: Spacing.md) {
-                searchBar
-                iconButton(systemImage: "line.3.horizontal.decrease", label: "Open filters") {
-                    viewModel.isFilterSheetPresented = true
-                }
-                iconButton(systemImage: "map", label: "Switch to map view") {
-                    viewModel.setViewMode(.map)
-                }
-            }
-            cityChips
-        }
-        .padding(.horizontal, Spacing.screenMargin)
-        .padding(.top, Spacing.md)
-        .padding(.bottom, Spacing.md)
-    }
-
-    private var searchBar: some View {
-        HStack(spacing: Spacing.md) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.textTertiary)
-            Text(searchBarText)
-                .font(.martiBody)
-                .foregroundStyle(searchBarHasSummary ? Color.textPrimary : Color.textTertiary)
-                .lineLimit(1)
-                .truncationMode(.tail)
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, Spacing.base)
-        .frame(height: 48)
-        .frame(maxWidth: .infinity)
-        .background(Capsule().fill(Color.surfaceElevated))
-        .accessibilityHidden(true) // Search not functional in v1
-    }
-
-    private func iconButton(systemImage: String, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Color.textPrimary)
-                .frame(width: 48, height: 48)
-                .background(Circle().fill(Color.surfaceElevated))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(label)
-    }
+    // MARK: - City chip row (sibling to the hero header)
 
     private var cityChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -221,45 +177,13 @@ struct DiscoveryView: View {
                     )
                 }
             }
+            .padding(.horizontal, Spacing.screenMargin)
         }
     }
 
-    // MARK: - Search bar text
-
-    private var searchBarHasSummary: Bool {
-        viewModel.filter != .default
-    }
-
-    private var searchBarText: String {
-        let f = viewModel.filter
-        if f == .default {
-            return "Search Mogadishu, Hargeisa…"
-        }
-        var parts: [String] = []
-        if let city = f.city { parts.append(city.rawValue) }
-        if let dateRange = formattedDateRange(checkIn: f.checkIn, checkOut: f.checkOut) {
-            parts.append(dateRange)
-        }
-        if f.guestCount > 1 {
-            parts.append("\(f.guestCount) guests")
-        }
-        if let min = f.priceMin, let max = f.priceMax {
-            parts.append("$\(min/100)–$\(max/100)")
-        } else if let min = f.priceMin {
-            parts.append("$\(min/100)+")
-        } else if let max = f.priceMax {
-            parts.append("up to $\(max/100)")
-        }
-        return parts.isEmpty ? "Search Mogadishu, Hargeisa…" : parts.joined(separator: " · ")
-    }
-
-    private func formattedDateRange(checkIn: Date?, checkOut: Date?) -> String? {
-        guard let checkIn, let checkOut else { return nil }
-        let fmt = DateFormatter()
-        fmt.dateFormat = "MMM d"
-        return "\(fmt.string(from: checkIn))–\(fmt.string(from: checkOut))"
-    }
-
+    /// Provides the display title for a city chip.
+    /// - Parameter city: The city to convert, or `nil` to represent the "All" option.
+    /// - Returns: The localized title string for the given city (`"All"` for `nil`, `"Mogadishu"`, or `"Hargeisa"`).
     private func title(for city: City?) -> String {
         switch city {
         case nil:           return "All"

@@ -37,7 +37,7 @@ struct ListingCardView: View {
                 photo(height: 200)
 
                 if listing.isVerified {
-                    VerifiedBadgeView()
+                    VerifiedBadgeView(variant: .icon)
                         .padding(Spacing.md)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
@@ -101,7 +101,14 @@ struct ListingCardView: View {
         VStack(alignment: .leading, spacing: 0) {
             photo()
                 .frame(width: Spacing.railCardWidth, height: Spacing.railCardWidth)
-                .clipShape(RoundedRectangle(cornerRadius: Radius.lg))
+                .clipShape(RoundedRectangle(cornerRadius: Radius.md))
+                // 1pt hairline keeps dark photos from bleeding into canvas at
+                // the corner radius. strokeBorder (not stroke) so the line sits
+                // on the inside of the clipped path and doesn't get cut off.
+                .overlay(
+                    RoundedRectangle(cornerRadius: Radius.md)
+                        .strokeBorder(Color.surfaceStroke, lineWidth: 1)
+                )
                 .overlay(alignment: .top) { photoOverlay }
 
             Text(listing.title)
@@ -142,7 +149,7 @@ struct ListingCardView: View {
                 Text(usdString())
                 Text("·")
                 Image(systemName: "star.fill")
-                    .foregroundStyle(Color.coreAccent)
+                    .foregroundStyle(Color.statusWarning)
                 Text(String(format: "%.1f", rating))
             }
             .font(.martiCaption)
