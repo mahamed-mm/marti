@@ -10,6 +10,14 @@ nonisolated final class SupabaseListingService: ListingService {
         self.client = client
     }
 
+    /// Fetches listings that match the provided filter and returns a single page of results using keyset pagination.
+    /// 
+    /// Applies optional filtering by city, minimum guest capacity, and price range. When a `cursor` is provided, results are paged relative to the cursor tuple using keyset pagination over `(created_at DESC, id DESC)`. Results are ordered by `created_at` descending then `id` descending and limited to `limit`.
+    /// - Parameters:
+    ///   - filter: Criteria used to filter listings (city, guest count, optional min/max price).
+    ///   - cursor: Optional keyset cursor; pagination returns rows strictly after the cursor tuple using `createdAt` and `id`.
+    ///   - limit: Maximum number of listings to return.
+    /// - Returns: An array of `ListingDTO` objects matching the filters, ordered by `created_at` descending then `id` descending.
     func fetchListings(filter: ListingFilter, cursor: ListingCursor?, limit: Int) async throws -> [ListingDTO] {
         var query = client.from("listings").select()
 
@@ -44,6 +52,11 @@ nonisolated final class SupabaseListingService: ListingService {
         }
     }
 
+    /// Fetches the discovery feed by concurrently loading categories and listings, optionally scoped to a city.
+    /// - Parameters:
+    ///   - city: Optional city used to filter categories and listings; pass `nil` to include global content.
+    /// - Returns: A `DiscoveryFeedDTO` containing the fetched categories and listings.
+    /// - Throws: `AppError` if either categories or listings retrieval fails.
     func fetchDiscoveryFeed(city: City?) async throws -> DiscoveryFeedDTO {
         // Two independent queries — run them concurrently.
         async let categoriesTask: [DiscoveryCategoryDTO] = fetchCategories(city: city)
@@ -57,6 +70,10 @@ nonisolated final class SupabaseListingService: ListingService {
         }
     }
 
+    /// Fetches discovery categories, optionally scoped to a city while also including global categories.
+    /// - Parameters:
+    ///   - city: If provided, returns categories specific to this city and categories where `city` is `NULL` (global).
+    /// - Returns: An array of `DiscoveryCategoryDTO` ordered by `display_order` ascending.
     private func fetchCategories(city: City?) async throws -> [DiscoveryCategoryDTO] {
         var query = client.from("categories").select()
         if let city {
@@ -69,6 +86,10 @@ nonisolated final class SupabaseListingService: ListingService {
             .value
     }
 
+    /// Fetches listings together with their associated categories, optionally limited to a specific city.
+    /// - Parameters:
+    ///   - city: If provided, only listings for this city are returned; if `nil`, listings for all cities are returned.
+    /// - Returns: An array of `ListingDTO` objects from the `listings_with_categories` view, ordered by `created_at` descending.
     private func fetchListingsWithCategories(city: City?) async throws -> [ListingDTO] {
         var query = client.from("listings_with_categories").select()
         if let city {
@@ -80,6 +101,13 @@ nonisolated final class SupabaseListingService: ListingService {
             .value
     }
 
+    /// Add or remove the current user's saved listing.
+    /// 
+    /// Inserts a saved listing row for the authenticated user when `saved` is `true`; removes the saved row when `saved` is `false`.
+    /// - Parameters:
+    ///   - listingID: The UUID of the listing to save or unsave.
+    ///   - saved: `true` to save the listing, `false` to remove it.
+    /// - Throws: `AppError.unauthorized` if there is no authenticated user; other persistence or network errors mapped to `AppError`.
     func toggleSaved(listingID: UUID, saved: Bool) async throws {
         guard let userID = try? await client.auth.user().id else {
             throw AppError.unauthorized

@@ -122,7 +122,9 @@ final class ListingDiscoveryViewModel {
         self.debounce = debounce
     }
 
-    // MARK: - Loading
+    /// Loads the discovery feed and updates the view model's listings and categories.
+    /// 
+    /// Performs a cache-first refresh: surfaces cached listing and category snapshots immediately, then fetches fresh data from the network. On success, replaces `listings` and `categories`, persists snapshots to the local cache, sets `hasMorePages = false`, and clears any error/offline state. On failure, preserves cached rails (if present) and marks the view model offline; if no cache exists, records the mapped error. Handles task cancellation and clears a stale map selection after completion.
 
     func loadListings() async {
         loadTask?.cancel()
@@ -170,6 +172,12 @@ final class ListingDiscoveryViewModel {
         await task.value
     }
 
+    /// Loads the next page of listings and appends them to the current feed.
+    /// 
+    /// If loading is not possible (no more pages, already loading, or there are no listings), the method returns immediately.
+    /// On success, the fetched listings are appended to `listings` and `hasMorePages` is updated to reflect whether another page may exist.
+    /// On failure, `error` is set with a mapped `AppError`.
+    /// Side effects: toggles `isLoadingMore` for the duration of the operation and mutates `listings`, `hasMorePages`, and `error`.
     func loadMore() async {
         guard hasMorePages, !isLoading, !isLoadingMore, let last = listings.last else { return }
         isLoadingMore = true
@@ -187,6 +195,9 @@ final class ListingDiscoveryViewModel {
         }
     }
 
+    /// Clears the current feed and pagination state, then reloads listings and categories.
+    /// 
+    /// This resets `listings`, `categories`, and `hasMorePages` before invoking `loadListings()`.
     func refresh() async {
         listings = []
         categories = []
@@ -194,7 +205,9 @@ final class ListingDiscoveryViewModel {
         await loadListings()
     }
 
-    // MARK: - Filters
+    /// Applies the given listing filter and schedules a debounced refresh of the feed.
+    /// Cancels any in-flight debounce task and starts a new one that will call `refresh()` after the view model's debounce interval.
+    /// - Parameter newFilter: The filter to apply to the discovery feed; becomes the view model's active `filter`.
 
     func applyFilter(_ newFilter: ListingFilter) {
         filter = newFilter
@@ -207,11 +220,14 @@ final class ListingDiscoveryViewModel {
     }
 
     /// Test hook: deterministically await the in-flight debounce task (debounce
-    /// + refresh + fetch). Exists so tests don't need wall-clock `Task.sleep`s.
+    /// Waits for the currently scheduled debounce task to complete, if one exists.
+    /// 
+    /// Intended as a test hook to ensure any pending debounce work finishes before making assertions.
     func awaitPendingDebounce() async {
         await debounceTask?.value
     }
 
+    /// Resets the current listing filter to the default preset.
     func clearFilters() {
         applyFilter(.default)
     }
@@ -250,14 +266,21 @@ final class ListingDiscoveryViewModel {
         viewMode = mode
     }
 
+    /// Selects the map pin corresponding to the given listing identifier.
+    /// - Parameters:
+    ///   - id: The listing `UUID` to select; pass `nil` to clear the current selection.
     func selectPin(_ id: UUID?) {
         selectedPinID = id
     }
 
+    /// Marks the fee tag as dismissed so the UI will stop presenting it.
     func dismissFeeTag() {
         feeTagDismissed = true
     }
 
+    /// Clears the current map pin selection if the selected pin's listing no longer exists in `listings`.
+    /// 
+    /// Does nothing if `selectedPinID` is already `nil`.
     private func clearSelectionIfStale() {
         guard let id = selectedPinID else { return }
         if !listings.contains(where: { $0.id == id }) {
@@ -265,7 +288,9 @@ final class ListingDiscoveryViewModel {
         }
     }
 
-    // MARK: - Helpers
+    /// Normalize an `Error` into an `AppError`.
+    /// - Parameter error: The error to convert.
+    /// - Returns: The same `AppError` if `error` is already one, otherwise `.unknown` constructed with the error's localized description.
 
     private func mapError(_ error: Error) -> AppError {
         if let appError = error as? AppError {
@@ -279,7 +304,8 @@ final class ListingDiscoveryViewModel {
     /// Snapshots cached listings into detached DTOs while the managed models are still
     /// attached to the context. Returning DTOs (not `Listing` instances) keeps the
     /// ViewModel and any View binding immune to SwiftData fault errors when
-    /// `writeCache` later deletes stale rows.
+    /// Reads cached listing records from the SwiftData model context and returns them as detached `ListingDTO` snapshots.
+    /// - Returns: An array of `ListingDTO` representing cached listings; returns an empty array if there is no `modelContext` or if the fetch fails.
     private func readCache() -> [ListingDTO] {
         guard let modelContext else { return [] }
         let descriptor = FetchDescriptor<Listing>(sortBy: [SortDescriptor(\.id)])
@@ -287,6 +313,10 @@ final class ListingDiscoveryViewModel {
         return managed.map { ListingDTO(model: $0) }
     }
 
+    /// Replaces the persisted Listing cache with the given DTO snapshots by deleting stale rows and upserting incoming records.
+    /// 
+    /// If `modelContext` is `nil` this is a no-op. For present contexts, any cached `Listing` whose `id` is not in `dtos` is deleted; for each DTO, an existing row is updated (its `categoryIDs` are synchronized) or a new `Listing` is inserted. Attempts to save the context at the end.
+    /// - Parameter dtos: The fresh `ListingDTO` snapshots to write to the cache.
     private func writeCache(replacingWith dtos: [ListingDTO]) {
         guard let modelContext else { return }
         // Remove anything not in the fresh result, then upsert.
@@ -308,6 +338,8 @@ final class ListingDiscoveryViewModel {
         try? modelContext.save()
     }
 
+    /// Reads cached discovery categories from the SwiftData model context and returns them as DTO snapshots.
+    /// - Returns: An array of `DiscoveryCategoryDTO` representing cached categories sorted by `displayOrder`; returns an empty array if `modelContext` is nil or the fetch fails.
     private func readCategoryCache() -> [DiscoveryCategoryDTO] {
         guard let modelContext else { return [] }
         let descriptor = FetchDescriptor<DiscoveryCategory>(sortBy: [SortDescriptor(\.displayOrder)])
@@ -315,6 +347,10 @@ final class ListingDiscoveryViewModel {
         return managed.map { DiscoveryCategoryDTO(model: $0) }
     }
 
+    /// Upserts the given category DTOs into the SwiftData model context and removes any cached categories not present in `dtos`.
+    /// - Description: For each DTO, updates an existing `DiscoveryCategory` with matching `id` (overwriting `slug`, `title`, `subtitle`, `city`, and `displayOrder`) or inserts a new `DiscoveryCategory` if none exists. Any persisted categories whose `id` is not present in `dtos` are deleted. Attempts to save the context at the end; failures are ignored.
+    /// - Parameters:
+    ///   - dtos: Snapshot representations of discovery categories to persist. If `modelContext` is `nil`, the call is a no-op.
     private func writeCategoryCache(replacingWith dtos: [DiscoveryCategoryDTO]) {
         guard let modelContext else { return }
         let freshIDs = Set(dtos.map(\.id))

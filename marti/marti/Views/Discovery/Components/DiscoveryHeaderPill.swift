@@ -50,6 +50,12 @@ struct DiscoveryHeaderPill: View {
         .accessibilityAddTraits(.isHeader)
     }
 
+    /// Creates a circular icon button displaying a SF Symbol and exposing an accessibility label.
+    /// - Parameters:
+    ///   - systemImage: The name of the SF Symbol to display inside the button.
+    ///   - label: The accessibility label read by assistive technologies.
+    ///   - action: The closure invoked when the button is tapped.
+    /// - Returns: A view containing a tappable circular button that shows the specified system image and uses the provided accessibility label.
     private func circularIconButton(
         systemImage: String,
         label: String,

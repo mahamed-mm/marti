@@ -101,6 +101,9 @@ struct SelectedListingCard: View {
         }
     }
 
+    /// Renders a single photo slide for the provided image URL string.
+    /// - Parameter urlString: The image URL as a string.
+    /// - Returns: A view that displays the image for `urlString`; shows a highlight color while the image is loading and a placeholder when the URL is invalid or loading fails.
     private func photoSlide(urlString: String) -> some View {
         Group {
             if let url = URL(string: urlString) {
@@ -159,6 +162,11 @@ struct SelectedListingCard: View {
         .padding(Spacing.base)
     }
 
+    /// Renders a horizontal rating row with a star icon, the rating formatted to one decimal, and the review count in parentheses.
+    /// - Parameters:
+    ///   - rating: Average rating value to display (formatted to one decimal).
+    ///   - count: Number of reviews shown in parentheses.
+    /// - Returns: A view containing a star icon, the formatted rating, and the review count.
     private func ratingRow(rating: Double, count: Int) -> some View {
         HStack(spacing: Spacing.sm) {
             Image(systemName: "star.fill")
@@ -239,7 +247,8 @@ struct SelectedListingCard: View {
             .overlay(Circle().fill(.ultraThinMaterial))
     }
 
-    // MARK: - Entrance + dismiss drag
+    /// Triggers the card's entrance by setting `isVisible` to true, using a spring animation when motion is allowed.
+    /// - Note: If reduce motion is enabled, visibility is set immediately without animation.
 
     private func animateIn() {
         guard !isVisible else { return }
@@ -311,6 +320,13 @@ struct SelectedListingCard: View {
 #if DEBUG
 
 private extension Listing {
+    /// Creates a sample `Listing` populated with sensible defaults for use in SwiftUI previews and tests.
+    /// - Parameters:
+    ///   - price: Price per night in US cents (e.g., 8500 -> $85.00).
+    ///   - rating: Optional average rating (scale typically 0.0–5.0) to display in the preview.
+    ///   - reviewCount: Number of reviews to display alongside the rating.
+    ///   - photoURLs: Array of image URL strings used by the preview photo gallery.
+    /// - Returns: A `Listing` instance filled with the provided values and sensible defaults suitable for UI previews.
     static func previewSample(
         id: UUID = UUID(),
         title: String = "Seafront villa with pool",

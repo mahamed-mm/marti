@@ -9,6 +9,11 @@ struct PrimaryButtonStyle: ButtonStyle {
     enum Expansion { case content, fill }
     var expansion: Expansion = .content
 
+    /// Builds the primary-styled button view for the given configuration.
+    ///
+    /// The resulting view renders the configuration's label as a cyan, pill-shaped primary button with a 48‑point minimum height. It applies `martiLabel1` typography, a canvas foreground, a `coreAccent` background, and a rounded rectangle clip. When `expansion == .content` it adds horizontal padding; when `expansion == .fill` it stretches to fill the available width. The button reduces its opacity to 0.85 while pressed.
+    /// - Parameter configuration: The button style configuration containing the label and pressed state.
+    /// - Returns: A view displaying the styled label according to the style's expansion and pressed-state appearance.
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.martiLabel1)
@@ -35,6 +40,9 @@ struct GhostButtonStyle: ButtonStyle {
     enum Size { case regular, compact }
     var size: Size = .regular
 
+    /// Styles the button label as a "ghost" CTA, applying the appropriate font, accent foreground, minimum hit target, rectangular tap area, and pressed-state opacity.
+    /// - Parameter configuration: The `ButtonStyle.Configuration` providing the label view and press state.
+    /// - Returns: A view containing the styled label.
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(size == .regular ? .martiLabel1 : .martiLabel2)

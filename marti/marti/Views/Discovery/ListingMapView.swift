@@ -81,7 +81,9 @@ struct ListingMapView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: - Centering
+    /// Recenters the map viewport to display the current listings from `viewModel`.
+    /// 
+    /// If `viewModel.listings` is empty the function does nothing. If there is exactly one listing it sets the viewport to a camera centered on that listing with zoom level 13; if there are multiple listings it sets the viewport to an overview that fits all listing coordinates.
 
     private func recenter() {
         guard !viewModel.listings.isEmpty else { return }

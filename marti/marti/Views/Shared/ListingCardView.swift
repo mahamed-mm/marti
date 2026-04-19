@@ -236,7 +236,9 @@ struct ListingCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: Radius.md))
     }
 
-    // MARK: - Pieces
+    /// Returns a view that displays the listing photo stretched to fill the available width, constrained to the specified height, and clipped to its bounds.
+    /// - Parameter height: The fixed height (in points) to apply to the photo view.
+    /// - Returns: A view showing the listing photo sized to the provided height and expanded to the available width, with any overflowing content clipped.
 
     private func photo(height: CGFloat) -> some View {
         photo()
@@ -255,7 +257,8 @@ struct ListingCardView: View {
     /// claim more than the outer `.frame(width: Spacing.railCardWidth)`
     /// offered — content laid out oversized, got centre-clipped, and visually
     /// chopped chip/heart/title on both edges. The aspect-ratio wrapper and
-    /// the caller's explicit frame are sufficient to size the image.
+    /// Renders the listing's primary photo or a placeholder when no valid photo URL exists.
+    /// - Returns: A view that displays the first photo URL if it can be parsed and loaded; while the image is loading it shows `Color.surfaceHighlight`, and if loading fails it shows the photo placeholder.
     private func photo() -> some View {
         Group {
             if let urlString = listing.photoURLs.first, let url = URL(string: urlString) {
@@ -288,6 +291,12 @@ struct ListingCardView: View {
         }
     }
 
+    /// Creates a horizontal rating display with a star icon, a numeric rating, and an optional review count.
+    /// - Parameters:
+    ///   - rating: The average rating to display; formatted to one decimal place.
+    ///   - count: The number of reviews to show in parentheses when `compact` is `false`.
+    ///   - compact: When `true`, uses smaller typography and hides the review count.
+    /// - Returns: A view containing a star icon, the formatted rating, and optionally the review count.
     private func ratingRow(rating: Double, count: Int, compact: Bool = false) -> some View {
         HStack(spacing: Spacing.sm) {
             Image(systemName: "star.fill")
