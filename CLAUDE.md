@@ -76,8 +76,8 @@ marti/Marti/
 │   │   ├── CategoryRailView.swift — horizontal rail (rail variant of ListingCardView)
 │   │   ├── FilterSheetView.swift
 │   │   ├── PriceRangeSlider.swift
-│   │   └── Components/            — DiscoveryHeaderPill, FeeInclusionTag, ListingPricePin,
-│   │                                 MapEmptyStatePill, SelectedListingCard
+│   │   └── Components/            — DiscoveryHeaderPill, DiscoveryHeroHeaderView, FeeInclusionTag,
+│   │                                 ListingPricePin, MapEmptyStatePill, SelectedListingCard
 │   ├── ListingDetail/             — placeholder for now
 │   └── Auth/                      — placeholder auth sheet
 ├── Extensions/
@@ -89,7 +89,7 @@ marti/MartiTests/
 ├── Models/
 ├── Services/
 ├── ViewModels/                    — ListingDiscoveryViewModelTests (the bulk of the suite)
-└── Views/                         — FavoriteHeartButtonTests (component constants)
+└── Views/                         — FavoriteHeartButtonTests, VerifiedBadgeViewTests (component constants)
 
 docs/
 ├── PRD.md                         — Product Requirements Document

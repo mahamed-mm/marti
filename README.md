@@ -8,17 +8,17 @@ iOS, SwiftUI, Swift 6, Supabase, Mapbox.
 
 ## Status
 
-**v1 — Listing Discovery feature complete.** The Discover tab ships the list view (with horizontal category rails), map view (Mapbox), filter sheet, and empty / error / loading states. Real listings are served from Supabase. Photos, verified badges, ratings, USD + SOS pricing, saved-heart toggles, and pin-to-card selection are all wired.
+**v1 — Listing Discovery feature complete.** The Discover tab ships an editorial list view (with a `martiDisplay` hero header over horizontal category rails), map view (Mapbox), filter sheet, and empty / error / loading states. Real listings are served from Supabase. Photos, verified badges (icon + label variants), ratings, USD + SOS pricing, saved-heart toggles, and pin-to-card selection are all wired.
 
 What's shipped:
-- Discovery (list + map with Mapbox, filters, category rails, skeleton / empty / error states)
+- Discovery (list + map with Mapbox, filters, category rails, skeleton / empty / error states, editorial hero header)
 - Floating tab bar with hide-on-detail behavior
 - SwiftData offline cache (listings + categories)
 - Supabase client wired with Row-Level Security
 - USD → SOS currency conversion (open.er-api.com, 24h cache)
 - Image caching layer (NSCache + URLCache, built but not currently wired — listing photos use `AsyncImage` today)
-- Extracted design-system components: `PrimaryButtonStyle`, `GhostButtonStyle`, `FavoriteHeartButton`, `VerifiedBadgeView`
-- Swift Testing suite covering ViewModel, Services, Models, and a component-level smoke test
+- Extracted design-system components: `PrimaryButtonStyle`, `GhostButtonStyle`, `FavoriteHeartButton`, `VerifiedBadgeView`, `DiscoveryHeroHeaderView`
+- Swift Testing suite covering ViewModel, Services, Models, and component-level constant checks (heart + verified badge)
 
 What's deferred (explicit):
 - Listing Detail feature (next)
@@ -27,8 +27,7 @@ What's deferred (explicit):
 - Pin Mapbox SDK to a v11 release tag before shipping
 - Insert live-count query for "Show X listings" CTA
 
-Active task tracker: [`docs/tasks/discovery-map-redesign.md`](docs/tasks/discovery-map-redesign.md).
-Original discovery tracker (closed out): [`docs/tasks/listing-discovery.md`](docs/tasks/listing-discovery.md).
+Closed task trackers: [`docs/tasks/listing-discovery.md`](docs/tasks/listing-discovery.md), [`docs/tasks/discovery-map-redesign.md`](docs/tasks/discovery-map-redesign.md).
 
 ---
 
@@ -168,6 +167,7 @@ marti/Marti/
 │   │   ├── PriceRangeSlider.swift
 │   │   └── Components/
 │   │       ├── DiscoveryHeaderPill.swift   — map-mode title/subtitle pill + back/tune buttons
+│   │       ├── DiscoveryHeroHeaderView.swift — list-mode editorial header (display title + search capsule + map/filter buttons)
 │   │       ├── FeeInclusionTag.swift       — dismissible "prices include all fees" chip
 │   │       ├── ListingPricePin.swift       — price-capsule map annotation
 │   │       ├── MapEmptyStatePill.swift     — no-results nudge on the map
@@ -186,7 +186,8 @@ marti/MartiTests/
 ├── ViewModels/
 │   └── ListingDiscoveryViewModelTests.swift   — bulk of the suite
 └── Views/
-    └── FavoriteHeartButtonTests.swift         — component-constant checks
+    ├── FavoriteHeartButtonTests.swift         — component-constant checks
+    └── VerifiedBadgeViewTests.swift           — badge variant-constant checks
 
 docs/
 ├── PRD.md               — Product Requirements
