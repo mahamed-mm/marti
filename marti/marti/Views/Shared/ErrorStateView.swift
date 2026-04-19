@@ -28,17 +28,9 @@ struct ErrorStateView: View {
                     .padding(.horizontal, Spacing.lg)
             }
 
-            Button(action: retry) {
-                Text("Try Again")
-                    .font(.martiLabel1)
-                    .foregroundStyle(Color.canvas)
-                    .padding(.horizontal, Spacing.xl)
-                    .frame(minHeight: 48)
-                    .background(Color.coreAccent)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.sm))
-            }
-            .buttonStyle(.plain)
-            .padding(.top, Spacing.md)
+            Button("Try Again", action: retry)
+                .buttonStyle(.primary)
+                .padding(.top, Spacing.md)
         }
         .padding(.vertical, Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

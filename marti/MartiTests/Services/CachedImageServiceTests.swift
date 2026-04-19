@@ -1,4 +1,5 @@
 import Foundation
+import Synchronization
 import Testing
 import UIKit
 @testable import Marti
@@ -22,16 +23,16 @@ struct CachedImageServiceTests {
     @Test func cachesImageInMemoryAfterFirstLoad() async {
         let url = URL(string: "https://test.invalid/cached.png")!
         let pngData = Self.pngData(color: .blue)
-        var callCount = 0
+        let callCount = Mutex(0)
         StubURLProtocol.responder = { requestURL in
-            callCount += 1
+            callCount.withLock { $0 += 1 }
             let response = HTTPURLResponse(url: requestURL, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (pngData, response)
         }
         let service = CachedImageService(urlSession: Self.makeSession())
         _ = await service.loadImage(from: url)
         _ = await service.loadImage(from: url)
-        #expect(callCount == 1)
+        #expect(callCount.withLock { $0 } == 1)
     }
 
     @Test func returnsNilOnHTTPError() async {

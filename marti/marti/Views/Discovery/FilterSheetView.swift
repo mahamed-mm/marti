@@ -34,11 +34,13 @@ struct FilterSheetView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            headerRow
+                .padding(.horizontal, Spacing.lg)
+                .padding(.top, Spacing.lg)
+                .padding(.bottom, Spacing.lg)
+
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.lg) {
-                    headerRow
-                        .padding(.top, Spacing.md)
-
                     citySection
                     Divider().background(Color.dividerLine)
 
@@ -50,13 +52,18 @@ struct FilterSheetView: View {
 
                     priceSection
                 }
-                .padding(.horizontal, Spacing.base)
-                .padding(.bottom, Spacing.lg)
+                .padding(.horizontal, Spacing.lg)
+                .padding(.bottom, Spacing.base)
             }
-
-            applyButton
         }
         .background(Color.surfaceDefault.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 0) {
+                Divider().background(Color.dividerLine)
+                applyButton
+            }
+            .background(Color.surfaceDefault.ignoresSafeArea(edges: .bottom))
+        }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color.surfaceDefault)
@@ -68,15 +75,31 @@ struct FilterSheetView: View {
     // MARK: - Header
 
     private var headerRow: some View {
-        HStack {
-            Text("Filters")
-                .font(.martiHeading4)
-                .foregroundStyle(Color.textPrimary)
-            Spacer()
-            Button("Clear all", action: clearAll)
-                .font(.martiLabel2)
-                .foregroundStyle(Color.coreAccent)
+        // Fall back to a stacked layout at large Dynamic Type sizes so the
+        // title and action don't collide or truncate on narrow widths.
+        ViewThatFits(in: .horizontal) {
+            HStack {
+                headerTitle
+                Spacer()
+                clearAllButton
+            }
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                headerTitle
+                clearAllButton
+            }
         }
+    }
+
+    private var headerTitle: some View {
+        Text("Filters")
+            .font(.martiHeading4)
+            .foregroundStyle(Color.textPrimary)
+    }
+
+    private var clearAllButton: some View {
+        Button("Clear all", action: clearAll)
+            .buttonStyle(.ghostCompact)
+            .accessibilityLabel("Clear all filters")
     }
 
     // MARK: - City
@@ -266,19 +289,10 @@ struct FilterSheetView: View {
     // MARK: - Apply
 
     private var applyButton: some View {
-        Button(action: apply) {
-            Text("Show listings")
-                .font(.martiLabel1)
-                .foregroundStyle(Color.canvas)
-                .frame(maxWidth: .infinity, minHeight: 48)
-                .background(Color.coreAccent)
-                .clipShape(RoundedRectangle(cornerRadius: Radius.sm))
-        }
-        .buttonStyle(.plain)
-        .padding(.horizontal, Spacing.base)
-        .padding(.top, Spacing.md)
-        .padding(.bottom, Spacing.lg)
-        .background(Color.surfaceDefault.ignoresSafeArea(edges: .bottom))
+        Button("Show listings", action: apply)
+            .buttonStyle(.primaryFullWidth)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.vertical, Spacing.md)
     }
 
     // MARK: - Helpers

@@ -31,6 +31,6 @@ struct MartiApp: App {
                 currencyService: currencyService
             )
         }
-        .modelContainer(for: Listing.self)
+        .modelContainer(for: [Listing.self, DiscoveryCategory.self])
     }
 }

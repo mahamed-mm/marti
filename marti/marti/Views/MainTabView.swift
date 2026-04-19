@@ -43,7 +43,8 @@ struct MainTabView: View {
                             currencyService: currencyService,
                             authManager: auth,
                             modelContext: modelContext
-                        )
+                        ),
+                        tabBarHeight: tabBarHeight
                     )
                     .toolbar(.hidden, for: .navigationBar)
                 }

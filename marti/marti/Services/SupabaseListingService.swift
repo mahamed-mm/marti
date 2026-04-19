@@ -10,7 +10,15 @@ nonisolated final class SupabaseListingService: ListingService {
         self.client = client
     }
 
-    func fetchListings(filter: ListingFilter, cursor: UUID?, limit: Int) async throws -> [ListingDTO] {
+    /// Fetches listings that match the provided filter and returns a single page of results using keyset pagination.
+    /// 
+    /// Applies optional filtering by city, minimum guest capacity, and price range. When a `cursor` is provided, results are paged relative to the cursor tuple using keyset pagination over `(created_at DESC, id DESC)`. Results are ordered by `created_at` descending then `id` descending and limited to `limit`.
+    /// - Parameters:
+    ///   - filter: Criteria used to filter listings (city, guest count, optional min/max price).
+    ///   - cursor: Optional keyset cursor; pagination returns rows strictly after the cursor tuple using `createdAt` and `id`.
+    ///   - limit: Maximum number of listings to return.
+    /// - Returns: An array of `ListingDTO` objects matching the filters, ordered by `created_at` descending then `id` descending.
+    func fetchListings(filter: ListingFilter, cursor: ListingCursor?, limit: Int) async throws -> [ListingDTO] {
         var query = client.from("listings").select()
 
         if let city = filter.city {
@@ -24,13 +32,17 @@ nonisolated final class SupabaseListingService: ListingService {
             query = query.lte("price_per_night", value: priceMax)
         }
         if let cursor {
-            query = query.gt("id", value: cursor.uuidString)
+            // Keyset pagination: page through `created_at DESC, id DESC` by selecting rows
+            // strictly "after" the cursor tuple: created_at < ts OR (created_at = ts AND id < lastID).
+            let ts = cursor.createdAt.formatted(.iso8601)
+            query = query.or("created_at.lt.\(ts),and(created_at.eq.\(ts),id.lt.\(cursor.id.uuidString))")
         }
         // Date availability filtering will land with the Bookings feature — see Step 5 notes.
 
         do {
             let response: [ListingDTO] = try await query
-                .order("id")
+                .order("created_at", ascending: false)
+                .order("id", ascending: false)
                 .limit(limit)
                 .execute()
                 .value
@@ -40,6 +52,62 @@ nonisolated final class SupabaseListingService: ListingService {
         }
     }
 
+    /// Fetches the discovery feed by concurrently loading categories and listings, optionally scoped to a city.
+    /// - Parameters:
+    ///   - city: Optional city used to filter categories and listings; pass `nil` to include global content.
+    /// - Returns: A `DiscoveryFeedDTO` containing the fetched categories and listings.
+    /// - Throws: `AppError` if either categories or listings retrieval fails.
+    func fetchDiscoveryFeed(city: City?) async throws -> DiscoveryFeedDTO {
+        // Two independent queries — run them concurrently.
+        async let categoriesTask: [DiscoveryCategoryDTO] = fetchCategories(city: city)
+        async let listingsTask:   [ListingDTO]           = fetchListingsWithCategories(city: city)
+
+        do {
+            let (categories, listings) = try await (categoriesTask, listingsTask)
+            return DiscoveryFeedDTO(categories: categories, listings: listings)
+        } catch {
+            throw map(error)
+        }
+    }
+
+    /// Fetches discovery categories, optionally scoped to a city while also including global categories.
+    /// - Parameters:
+    ///   - city: If provided, returns categories specific to this city and categories where `city` is `NULL` (global).
+    /// - Returns: An array of `DiscoveryCategoryDTO` ordered by `display_order` ascending.
+    private func fetchCategories(city: City?) async throws -> [DiscoveryCategoryDTO] {
+        var query = client.from("categories").select()
+        if let city {
+            // Return both city-specific categories AND global (city IS NULL) ones.
+            query = query.or("city.eq.\(city.rawValue),city.is.null")
+        }
+        return try await query
+            .order("display_order", ascending: true)
+            .execute()
+            .value
+    }
+
+    /// Fetches listings together with their associated categories, optionally limited to a specific city.
+    /// - Parameters:
+    ///   - city: If provided, only listings for this city are returned; if `nil`, listings for all cities are returned.
+    /// - Returns: An array of `ListingDTO` objects from the `listings_with_categories` view, ordered by `created_at` descending.
+    private func fetchListingsWithCategories(city: City?) async throws -> [ListingDTO] {
+        var query = client.from("listings_with_categories").select()
+        if let city {
+            query = query.eq("city", value: city.rawValue)
+        }
+        return try await query
+            .order("created_at", ascending: false)
+            .execute()
+            .value
+    }
+
+    /// Add or remove the current user's saved listing.
+    /// 
+    /// Inserts a saved listing row for the authenticated user when `saved` is `true`; removes the saved row when `saved` is `false`.
+    /// - Parameters:
+    ///   - listingID: The UUID of the listing to save or unsave.
+    ///   - saved: `true` to save the listing, `false` to remove it.
+    /// - Throws: `AppError.unauthorized` if there is no authenticated user; other persistence or network errors mapped to `AppError`.
     func toggleSaved(listingID: UUID, saved: Bool) async throws {
         guard let userID = try? await client.auth.user().id else {
             throw AppError.unauthorized
