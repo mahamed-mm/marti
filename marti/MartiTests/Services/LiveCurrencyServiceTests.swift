@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import Marti
 
+@MainActor
 struct LiveCurrencyServiceTests {
 
     // MARK: - Formatting

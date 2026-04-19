@@ -99,6 +99,7 @@ struct FloatingTabView<Content: View, Value: CaseIterable & Hashable & FloatingT
                 }
                 .opacity(helper.hideTabBar ? 0 : 1)
                 .allowsHitTesting(!helper.hideTabBar)
+                .accessibilityHidden(helper.hideTabBar)
                 .animation(.easeInOut(duration: 0.25), value: helper.hideTabBar)
         }
         .environment(helper)

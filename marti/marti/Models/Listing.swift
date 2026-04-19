@@ -23,6 +23,9 @@ final class Listing {
     var cancellationPolicy: String
     var createdAt: Date
     var updatedAt: Date
+    /// Category memberships mirrored from `listing_categories`. Default `[]` keeps
+    /// pre-migration cached rows decodable when SwiftData opens an older store.
+    var categoryIDs: [UUID] = []
 
     init(
         id: UUID,
@@ -44,7 +47,8 @@ final class Listing {
         reviewCount: Int,
         cancellationPolicy: String,
         createdAt: Date,
-        updatedAt: Date
+        updatedAt: Date,
+        categoryIDs: [UUID] = []
     ) {
         self.id = id
         self.title = title
@@ -66,6 +70,7 @@ final class Listing {
         self.cancellationPolicy = cancellationPolicy
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.categoryIDs = categoryIDs
     }
 }
 
@@ -92,6 +97,7 @@ nonisolated struct ListingDTO: Codable, Sendable, Equatable {
     let cancellationPolicy: String
     let createdAt: Date
     let updatedAt: Date
+    let categoryIDs: [UUID]
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -114,6 +120,81 @@ nonisolated struct ListingDTO: Codable, Sendable, Equatable {
         case cancellationPolicy = "cancellation_policy"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        case categoryIDs = "category_ids"
+    }
+
+    init(
+        id: UUID,
+        title: String,
+        city: String,
+        neighborhood: String,
+        description: String,
+        pricePerNight: Int,
+        latitude: Double,
+        longitude: Double,
+        photoURLs: [String],
+        amenities: [String],
+        maxGuests: Int,
+        hostID: UUID,
+        hostName: String,
+        hostPhotoURL: String?,
+        isVerified: Bool,
+        averageRating: Double?,
+        reviewCount: Int,
+        cancellationPolicy: String,
+        createdAt: Date,
+        updatedAt: Date,
+        categoryIDs: [UUID] = []
+    ) {
+        self.id = id
+        self.title = title
+        self.city = city
+        self.neighborhood = neighborhood
+        self.description = description
+        self.pricePerNight = pricePerNight
+        self.latitude = latitude
+        self.longitude = longitude
+        self.photoURLs = photoURLs
+        self.amenities = amenities
+        self.maxGuests = maxGuests
+        self.hostID = hostID
+        self.hostName = hostName
+        self.hostPhotoURL = hostPhotoURL
+        self.isVerified = isVerified
+        self.averageRating = averageRating
+        self.reviewCount = reviewCount
+        self.cancellationPolicy = cancellationPolicy
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.categoryIDs = categoryIDs
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id                  = try c.decode(UUID.self,    forKey: .id)
+        self.title               = try c.decode(String.self,  forKey: .title)
+        self.city                = try c.decode(String.self,  forKey: .city)
+        self.neighborhood        = try c.decode(String.self,  forKey: .neighborhood)
+        self.description         = try c.decode(String.self,  forKey: .description)
+        self.pricePerNight       = try c.decode(Int.self,     forKey: .pricePerNight)
+        self.latitude            = try c.decode(Double.self,  forKey: .latitude)
+        self.longitude           = try c.decode(Double.self,  forKey: .longitude)
+        self.photoURLs           = try c.decode([String].self, forKey: .photoURLs)
+        self.amenities           = try c.decode([String].self, forKey: .amenities)
+        self.maxGuests           = try c.decode(Int.self,     forKey: .maxGuests)
+        self.hostID              = try c.decode(UUID.self,    forKey: .hostID)
+        self.hostName            = try c.decode(String.self,  forKey: .hostName)
+        self.hostPhotoURL        = try c.decodeIfPresent(String.self, forKey: .hostPhotoURL)
+        self.isVerified          = try c.decode(Bool.self,    forKey: .isVerified)
+        self.averageRating       = try c.decodeIfPresent(Double.self, forKey: .averageRating)
+        self.reviewCount         = try c.decode(Int.self,     forKey: .reviewCount)
+        self.cancellationPolicy  = try c.decode(String.self,  forKey: .cancellationPolicy)
+        self.createdAt           = try c.decode(Date.self,    forKey: .createdAt)
+        self.updatedAt           = try c.decode(Date.self,    forKey: .updatedAt)
+        // Supabase's plain `listings` table doesn't expose `category_ids`;
+        // only the `listings_with_categories` view does. Default to []
+        // so decoding works for both.
+        self.categoryIDs         = try c.decodeIfPresent([UUID].self, forKey: .categoryIDs) ?? []
     }
 }
 
@@ -139,7 +220,8 @@ extension Listing {
             reviewCount: dto.reviewCount,
             cancellationPolicy: dto.cancellationPolicy,
             createdAt: dto.createdAt,
-            updatedAt: dto.updatedAt
+            updatedAt: dto.updatedAt,
+            categoryIDs: dto.categoryIDs
         )
     }
 }
@@ -166,7 +248,8 @@ extension ListingDTO {
             reviewCount: model.reviewCount,
             cancellationPolicy: model.cancellationPolicy,
             createdAt: model.createdAt,
-            updatedAt: model.updatedAt
+            updatedAt: model.updatedAt,
+            categoryIDs: model.categoryIDs
         )
     }
 }

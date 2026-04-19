@@ -34,6 +34,34 @@ enum Spacing {
     static let lg:   CGFloat = 24
     static let xl:   CGFloat = 32
     static let xxl:  CGFloat = 40
+
+    /// Horizontal inset between a screen edge and primary column content
+    /// (search pill, chips, section headers, rail content). Single source
+    /// of truth — prefer over raw `Spacing.base` when the intent is
+    /// "screen edge", so a future tweak only touches one line.
+    static let screenMargin: CGFloat = base
+
+    /// Horizontal gap between cards inside a horizontal rail (Discovery,
+    /// similar-listings, saved). Intentionally tighter than `Spacing.base`
+    /// so a peek of the next card is visible without swapping in a wider
+    /// screen margin.
+    static let cardGap: CGFloat = 12
+
+    /// Visible width of the trailing peek card in a horizontal rail. Sized
+    /// so the peek clearly telegraphs "more here" without looking like a
+    /// clipped full card (40–48pt is the range across travel/commerce apps).
+    static let peekWidth: CGFloat = 44
+
+    /// Fixed card width used by horizontal rails across the app (Discovery
+    /// category rails, similar-listings, saved). Tuned so that on a compact
+    /// iPhone (≈402pt wide) the rail shows two full cards + a visible peek
+    /// of a third after leading/trailing `screenMargin` and one `cardGap`:
+    ///   402 − (2·16) − 12 − (2·170) = 18pt peek.
+    /// 170pt gives the rail card enough room for a square image plus title
+    /// plus meta row without the text feeling cramped; using a constant keeps
+    /// card width identical across every rail in the app rather than drifting
+    /// with screen size.
+    static let railCardWidth: CGFloat = 170
 }
 
 // MARK: - Corner radius
@@ -49,13 +77,16 @@ enum Radius {
 
 // MARK: - Typography helpers
 
+// Sizes anchor to the nearest semantic TextStyle so Dynamic Type (up to AX5)
+// scales these tokens. Designed sizes stay close to the DESIGN.md scale at the
+// default Dynamic Type setting (small offsets: 24→22, 16→17, 14→13, 12→12).
 extension Font {
-    static let martiHeading3   = Font.system(size: 24, weight: .bold)
-    static let martiHeading4   = Font.system(size: 20, weight: .bold)
-    static let martiHeading5   = Font.system(size: 16, weight: .bold)
-    static let martiBody       = Font.system(size: 16, weight: .regular)
-    static let martiFootnote   = Font.system(size: 14, weight: .regular)
-    static let martiCaption    = Font.system(size: 12, weight: .regular)
-    static let martiLabel1     = Font.system(size: 16, weight: .bold)
-    static let martiLabel2     = Font.system(size: 14, weight: .bold)
+    static let martiHeading3   = Font.system(.title2,    weight: .bold)
+    static let martiHeading4   = Font.system(.title3,    weight: .bold)
+    static let martiHeading5   = Font.system(.headline,  weight: .bold)
+    static let martiBody       = Font.system(.body,      weight: .regular)
+    static let martiFootnote   = Font.system(.footnote,  weight: .regular)
+    static let martiCaption    = Font.system(.caption,   weight: .regular)
+    static let martiLabel1     = Font.system(.body,      weight: .bold)
+    static let martiLabel2     = Font.system(.footnote,  weight: .bold)
 }

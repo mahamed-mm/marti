@@ -6,7 +6,7 @@ nonisolated final class CachedImageService: ImageCacheService {
     static let defaultMemoryItemLimit = 50
     static let defaultDiskCapacity = 200 * 1024 * 1024  // 200 MB
 
-    private let memoryCache: NSCache<NSURL, UIImage>
+    nonisolated(unsafe) private let memoryCache: NSCache<NSURL, UIImage>
     private let urlSession: URLSession
 
     init(

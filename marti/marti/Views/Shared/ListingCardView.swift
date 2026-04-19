@@ -2,6 +2,11 @@ import SwiftUI
 
 enum ListingCardVariant {
     case full
+    /// Variant used inside horizontal category rails. The card sizes itself
+    /// to the width its container gives it (see `CategoryRailView`'s
+    /// `.containerRelativeFrame`) and uses a 1:1 square photo so its height
+    /// follows from that width.
+    case rail
     case compact
     case mapPreview
 }
@@ -13,12 +18,14 @@ struct ListingCardView: View {
     let onToggleSave: () -> Void
 
     @Environment(\.currencyService) private var currencyService
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         switch variant {
-        case .full:       fullCard
-        case .compact:    compactCard
-        case .mapPreview: mapPreviewCard
+        case .full:        fullCard
+        case .rail:        railCard
+        case .compact:     compactCard
+        case .mapPreview:  mapPreviewCard
         }
     }
 
@@ -30,12 +37,12 @@ struct ListingCardView: View {
                 photo(height: 200)
 
                 if listing.isVerified {
-                    verifiedBadge
+                    VerifiedBadgeView()
                         .padding(Spacing.md)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
 
-                heartButton
+                FavoriteHeartButton(isSaved: isSaved, size: .small, onToggle: onToggleSave)
                     .padding(Spacing.md)
             }
 
@@ -51,6 +58,7 @@ struct ListingCardView: View {
                         .font(.system(size: 12))
                     Text("\(listing.neighborhood), \(listing.city)")
                         .font(.martiFootnote)
+                        .lineLimit(1)
                 }
                 .foregroundStyle(Color.textSecondary)
                 .padding(.top, 10)
@@ -76,6 +84,89 @@ struct ListingCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: Radius.md))
     }
 
+    // MARK: - Rail (compact, Airbnb-style)
+
+    /// Compact rail card: square image with all-four-sides rounding, title
+    /// directly below (no panel), and a single meta row "$price · ★ rating".
+    /// Location and review count live on the detail screen, not the card.
+    ///
+    /// Width is imposed by the parent (`CategoryRailView`) via a fixed
+    /// `.frame(width: Spacing.railCardWidth)`. The photo is pinned to an
+    /// explicit square `.frame(width: _, height: _)` rather than driven by
+    /// `.aspectRatio(1, .fit)` — on iOS 26 the aspect-ratio form causes card 1
+    /// to shift back to `x = 0` once AsyncImage resolves, clipping the title.
+    /// Badge and heart use `.overlay(alignment:)` on the clipped photo so
+    /// their anchors are structural, not a byproduct of ZStack arithmetic.
+    private var railCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            photo()
+                .frame(width: Spacing.railCardWidth, height: Spacing.railCardWidth)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.lg))
+                .overlay(alignment: .top) { photoOverlay }
+
+            Text(listing.title)
+                .font(.martiLabel2)
+                .foregroundStyle(Color.textPrimary)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                .truncationMode(.tail)
+                .padding(.top, Spacing.md)
+
+            railMetaRow
+                .padding(.top, Spacing.xs)
+        }
+        .contentShape(.rect)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(railAccessibilityLabel)
+    }
+
+    /// Single top-anchored overlay containing both the Verified chip (leading)
+    /// and the heart button (trailing). Combining them into one HStack avoids
+    /// the two-overlay pattern where a second `.overlay(alignment: .topTrailing)`
+    /// sometimes failed to render on top of a `.clipShape`'d photo.
+    private var photoOverlay: some View {
+        HStack(alignment: .center, spacing: 0) {
+            if listing.isVerified {
+                VerifiedBadgeView()
+            }
+            Spacer(minLength: 0)
+            FavoriteHeartButton(isSaved: isSaved, size: .small, onToggle: onToggleSave)
+        }
+        .padding(.horizontal, Spacing.md)
+        .padding(.top, Spacing.sm)
+    }
+
+    @ViewBuilder
+    private var railMetaRow: some View {
+        if let rating = listing.averageRating {
+            HStack(spacing: Spacing.sm) {
+                Text(usdString())
+                Text("·")
+                Image(systemName: "star.fill")
+                    .foregroundStyle(Color.coreAccent)
+                Text(String(format: "%.1f", rating))
+            }
+            .font(.martiCaption)
+            .foregroundStyle(Color.textSecondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.9)
+        } else {
+            Text(usdString())
+                .font(.martiCaption)
+                .foregroundStyle(Color.textSecondary)
+                .lineLimit(1)
+        }
+    }
+
+    private var railAccessibilityLabel: String {
+        let verified = listing.isVerified ? ", Verified" : ""
+        if let rating = listing.averageRating {
+            let ratingText = String(format: "%.1f", rating)
+            return "\(listing.title), \(usdString()) per night, rated \(ratingText) stars\(verified)"
+        } else {
+            return "\(listing.title), \(usdString()) per night, new listing\(verified)"
+        }
+    }
+
     // MARK: - Compact
 
     private var compactCard: some View {
@@ -97,7 +188,7 @@ struct ListingCardView: View {
             }
         }
         .overlay(alignment: .topTrailing) {
-            heartButton
+            FavoriteHeartButton(isSaved: isSaved, size: .small, onToggle: onToggleSave)
                 .padding(Spacing.md)
         }
     }
@@ -138,7 +229,7 @@ struct ListingCardView: View {
                 }
             }
 
-            heartButton
+            FavoriteHeartButton(isSaved: isSaved, size: .small, onToggle: onToggleSave)
         }
         .padding(Spacing.md)
         .background(Color.surfaceDefault)
@@ -148,6 +239,24 @@ struct ListingCardView: View {
     // MARK: - Pieces
 
     private func photo(height: CGFloat) -> some View {
+        photo()
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .clipped()
+    }
+
+    /// Aspect-ratio-driven variant. The caller applies `.aspectRatio(_:)`
+    /// (or wraps in a fixed-width container) to determine the photo's height.
+    /// Used by `.rail` so the square image sizes from the card's resolved
+    /// width rather than a GeometryReader-computed height parameter.
+    ///
+    /// No internal width modifier: earlier versions had `.frame(maxWidth:
+    /// .infinity)` here, which caused the rail variant's card contents to
+    /// claim more than the outer `.frame(width: Spacing.railCardWidth)`
+    /// offered — content laid out oversized, got centre-clipped, and visually
+    /// chopped chip/heart/title on both edges. The aspect-ratio wrapper and
+    /// the caller's explicit frame are sufficient to size the image.
+    private func photo() -> some View {
         Group {
             if let urlString = listing.photoURLs.first, let url = URL(string: urlString) {
                 AsyncImage(url: url) { phase in
@@ -168,9 +277,6 @@ struct ListingCardView: View {
                 photoPlaceholder
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: height)
-        .clipped()
     }
 
     private var photoPlaceholder: some View {
@@ -180,36 +286,6 @@ struct ListingCardView: View {
                 .font(.system(size: 28))
                 .foregroundStyle(Color.textTertiary)
         }
-    }
-
-    private var verifiedBadge: some View {
-        HStack(spacing: Spacing.xs) {
-            Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 10))
-            Text("Verified")
-                .font(.martiCaption.bold())
-        }
-        .foregroundStyle(Color.statusSuccess)
-        .padding(.horizontal, Spacing.md)
-        .padding(.vertical, Spacing.sm)
-        .background(
-            Capsule().fill(Color.statusSuccess.opacity(0.15))
-        )
-        .accessibilityLabel("Verified host")
-    }
-
-    private var heartButton: some View {
-        Button(action: onToggleSave) {
-            Image(systemName: isSaved ? "heart.fill" : "heart")
-                .font(.system(size: 22, weight: .regular))
-                .foregroundStyle(isSaved ? Color.statusDanger : Color.white)
-                .shadow(color: .black.opacity(0.35), radius: 3, y: 1)
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .sensoryFeedback(.impact(weight: .light), trigger: isSaved)
-        .accessibilityLabel(isSaved ? "Remove from saved" : "Save listing")
     }
 
     private func ratingRow(rating: Double, count: Int, compact: Bool = false) -> some View {

@@ -50,8 +50,16 @@ struct EmptyStateView: View {
             }
 
             if let actionTitle, let action {
-                actionButton(actionTitle: actionTitle, action: action)
-                    .padding(.top, Spacing.sm)
+                switch actionStyle {
+                case .primary:
+                    Button(actionTitle, action: action)
+                        .buttonStyle(.primary)
+                        .padding(.top, Spacing.sm)
+                case .ghost:
+                    Button(actionTitle, action: action)
+                        .buttonStyle(.ghost)
+                        .padding(.top, Spacing.sm)
+                }
             }
         }
         .padding(.vertical, Spacing.xl)
@@ -61,28 +69,6 @@ struct EmptyStateView: View {
             RoundedRectangle(cornerRadius: Radius.md)
                 .fill(Color.surfaceDefault)
         )
-    }
-
-    @ViewBuilder
-    private func actionButton(actionTitle: String, action: @escaping () -> Void) -> some View {
-        switch actionStyle {
-        case .ghost:
-            Button(actionTitle, action: action)
-                .font(.martiLabel1)
-                .foregroundStyle(Color.coreAccent)
-                .frame(minHeight: 44)
-        case .primary:
-            Button(action: action) {
-                Text(actionTitle)
-                    .font(.martiLabel1)
-                    .foregroundStyle(Color.canvas)
-                    .padding(.horizontal, Spacing.xl)
-                    .frame(minHeight: 48)
-                    .background(Color.coreAccent)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.sm))
-            }
-            .buttonStyle(.plain)
-        }
     }
 }
 

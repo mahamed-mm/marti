@@ -13,6 +13,7 @@ final class ListingDiscoveryViewModel {
     // MARK: - State
 
     private(set) var listings: [Listing] = []
+    private(set) var categories: [DiscoveryCategory] = []
     private(set) var isLoading: Bool = false
     private(set) var isLoadingMore: Bool = false
     private(set) var error: AppError?
@@ -25,6 +26,69 @@ final class ListingDiscoveryViewModel {
     var selectedPinID: UUID?
     var isFilterSheetPresented: Bool = false
     var isAuthSheetPresented: Bool = false
+    var feeTagDismissed: Bool = false
+
+    // MARK: - Derived
+
+    var selectedListing: Listing? {
+        guard let id = selectedPinID else { return nil }
+        return listings.first(where: { $0.id == id })
+    }
+
+    var headerTitle: String {
+        if let city = filter.city {
+            return "Homes in \(city.rawValue)"
+        }
+        return "Homes across Somalia"
+    }
+
+    /// Derived horizontally-scrolling rails for the Discovery list.
+    ///
+    /// Rules:
+    /// - Only categories matching the current city filter (or global) are kept.
+    /// - Each rail's listings are those whose `categoryIDs` include the category's id.
+    /// - Empty rails collapse (never render an empty shell).
+    /// - Order is `displayOrder` ascending, ties broken by `slug` for stability.
+    var rails: [DiscoveryRail] {
+        let cityFilter = filter.city?.rawValue
+        return categories
+            .filter { category in
+                guard let cityFilter else { return true }
+                return category.city == nil || category.city == cityFilter
+            }
+            .sorted {
+                if $0.displayOrder != $1.displayOrder { return $0.displayOrder < $1.displayOrder }
+                return $0.slug < $1.slug
+            }
+            .compactMap { category in
+                let categoryListings = listings.filter { $0.categoryIDs.contains(category.id) }
+                guard !categoryListings.isEmpty else { return nil }
+                return DiscoveryRail(
+                    category: DiscoveryCategoryDTO(model: category),
+                    listings: categoryListings
+                )
+            }
+    }
+
+    var headerSubtitle: String {
+        let dateLabel: String
+        if let start = filter.checkIn, let end = filter.checkOut {
+            dateLabel = Self.dateRangeFormatter.string(from: start)
+                + " – "
+                + Self.dateRangeFormatter.string(from: end)
+        } else {
+            dateLabel = "Any dates"
+        }
+        let guestLabel = filter.guestCount == 1 ? "1 guest" : "\(filter.guestCount) guests"
+        return "\(dateLabel) · \(guestLabel)"
+    }
+
+    private static let dateRangeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "MMM d"
+        return formatter
+    }()
 
     // MARK: - Dependencies
 
@@ -63,31 +127,44 @@ final class ListingDiscoveryViewModel {
     func loadListings() async {
         loadTask?.cancel()
         let task = Task { @MainActor in
-            // Cache-first: surface cached listings immediately so the UI has something to render.
-            let cached = readCache()
-            if !cached.isEmpty, listings.isEmpty {
-                listings = cached
+            // Cache-first: surface cached listings AND categories immediately so the
+            // UI renders rails before the network roundtrip lands. Cache is read as
+            // detached DTO snapshots — SwiftData @Model instances must NEVER be
+            // surfaced to Views, otherwise writeCache's stale-purge can detach a
+            // @Model while a View still holds it, crashing on the next property fault.
+            let cachedListings   = readCache()
+            let cachedCategories = readCategoryCache()
+
+            if listings.isEmpty, !cachedListings.isEmpty {
+                listings = cachedListings.map { Listing(dto: $0) }
+            }
+            if categories.isEmpty, !cachedCategories.isEmpty {
+                categories = cachedCategories.map { DiscoveryCategory(dto: $0) }
             }
 
-            isLoading = listings.isEmpty
+            isLoading = rails.isEmpty
             error = nil
             do {
-                let dtos = try await listingService.fetchListings(filter: filter, cursor: nil, limit: pageSize)
+                let feed = try await listingService.fetchDiscoveryFeed(city: filter.city)
                 if Task.isCancelled { return }
-                listings = dtos.map { Listing(dto: $0) }
-                hasMorePages = dtos.count == pageSize
-                writeCache(replacingWith: dtos)
+                listings   = feed.listings.map   { Listing(dto: $0) }
+                categories = feed.categories.map { DiscoveryCategory(dto: $0) }
+                // Rails view doesn't paginate; flat pagination is a future SeeAll concern.
+                hasMorePages = false
+                writeCache(replacingWith: feed.listings)
+                writeCategoryCache(replacingWith: feed.categories)
                 isOffline = false
             } catch {
                 if Task.isCancelled { return }
-                if !cached.isEmpty {
-                    // Keep cached listings on screen, just flag offline.
+                if !cachedListings.isEmpty || !cachedCategories.isEmpty {
+                    // Keep cached rails on screen, just flag offline.
                     isOffline = true
                 } else {
                     self.error = mapError(error)
                 }
             }
             isLoading = false
+            clearSelectionIfStale()
         }
         loadTask = task
         await task.value
@@ -98,7 +175,11 @@ final class ListingDiscoveryViewModel {
         isLoadingMore = true
         defer { isLoadingMore = false }
         do {
-            let dtos = try await listingService.fetchListings(filter: filter, cursor: last.id, limit: pageSize)
+            let dtos = try await listingService.fetchListings(
+                filter: filter,
+                cursor: ListingCursor(createdAt: last.createdAt, id: last.id),
+                limit: pageSize
+            )
             listings.append(contentsOf: dtos.map { Listing(dto: $0) })
             hasMorePages = dtos.count == pageSize
         } catch {
@@ -108,7 +189,8 @@ final class ListingDiscoveryViewModel {
 
     func refresh() async {
         listings = []
-        hasMorePages = true
+        categories = []
+        hasMorePages = false
         await loadListings()
     }
 
@@ -122,6 +204,12 @@ final class ListingDiscoveryViewModel {
             if Task.isCancelled { return }
             await refresh()
         }
+    }
+
+    /// Test hook: deterministically await the in-flight debounce task (debounce
+    /// + refresh + fetch). Exists so tests don't need wall-clock `Task.sleep`s.
+    func awaitPendingDebounce() async {
+        await debounceTask?.value
     }
 
     func clearFilters() {
@@ -166,6 +254,17 @@ final class ListingDiscoveryViewModel {
         selectedPinID = id
     }
 
+    func dismissFeeTag() {
+        feeTagDismissed = true
+    }
+
+    private func clearSelectionIfStale() {
+        guard let id = selectedPinID else { return }
+        if !listings.contains(where: { $0.id == id }) {
+            selectedPinID = nil
+        }
+    }
+
     // MARK: - Helpers
 
     private func mapError(_ error: Error) -> AppError {
@@ -177,10 +276,15 @@ final class ListingDiscoveryViewModel {
 
     // MARK: - Cache
 
-    private func readCache() -> [Listing] {
+    /// Snapshots cached listings into detached DTOs while the managed models are still
+    /// attached to the context. Returning DTOs (not `Listing` instances) keeps the
+    /// ViewModel and any View binding immune to SwiftData fault errors when
+    /// `writeCache` later deletes stale rows.
+    private func readCache() -> [ListingDTO] {
         guard let modelContext else { return [] }
         let descriptor = FetchDescriptor<Listing>(sortBy: [SortDescriptor(\.id)])
-        return (try? modelContext.fetch(descriptor)) ?? []
+        let managed = (try? modelContext.fetch(descriptor)) ?? []
+        return managed.map { ListingDTO(model: $0) }
     }
 
     private func writeCache(replacingWith dtos: [ListingDTO]) {
@@ -193,8 +297,41 @@ final class ListingDiscoveryViewModel {
         }
         let existingByID = Dictionary(uniqueKeysWithValues: existing.compactMap { freshIDs.contains($0.id) ? ($0.id, $0) : nil })
         for dto in dtos {
-            if existingByID[dto.id] == nil {
+            if let existing = existingByID[dto.id] {
+                // categoryIDs may have changed even when id/title haven't — keep the
+                // cached row's membership in sync so rails stay accurate.
+                existing.categoryIDs = dto.categoryIDs
+            } else {
                 modelContext.insert(Listing(dto: dto))
+            }
+        }
+        try? modelContext.save()
+    }
+
+    private func readCategoryCache() -> [DiscoveryCategoryDTO] {
+        guard let modelContext else { return [] }
+        let descriptor = FetchDescriptor<DiscoveryCategory>(sortBy: [SortDescriptor(\.displayOrder)])
+        let managed = (try? modelContext.fetch(descriptor)) ?? []
+        return managed.map { DiscoveryCategoryDTO(model: $0) }
+    }
+
+    private func writeCategoryCache(replacingWith dtos: [DiscoveryCategoryDTO]) {
+        guard let modelContext else { return }
+        let freshIDs = Set(dtos.map(\.id))
+        let existing = (try? modelContext.fetch(FetchDescriptor<DiscoveryCategory>())) ?? []
+        for stale in existing where !freshIDs.contains(stale.id) {
+            modelContext.delete(stale)
+        }
+        let existingByID = Dictionary(uniqueKeysWithValues: existing.compactMap { freshIDs.contains($0.id) ? ($0.id, $0) : nil })
+        for dto in dtos {
+            if let existing = existingByID[dto.id] {
+                existing.slug         = dto.slug
+                existing.title        = dto.title
+                existing.subtitle     = dto.subtitle
+                existing.city         = dto.city
+                existing.displayOrder = dto.displayOrder
+            } else {
+                modelContext.insert(DiscoveryCategory(dto: dto))
             }
         }
         try? modelContext.save()

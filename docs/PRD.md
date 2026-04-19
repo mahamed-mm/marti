@@ -187,7 +187,7 @@ In v1 with no in-app payments, "refund" means the reservation is released and no
 
 ## Technical Constraints
 
-- iOS 17.0+ minimum
+- iOS 26.2+ minimum
 - Swift 6 with strict concurrency
 - SwiftUI + MVVM with `@Observable`
 - Supabase (PostgreSQL, Auth, Storage, Realtime)

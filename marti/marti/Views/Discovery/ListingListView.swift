@@ -14,13 +14,13 @@ struct ListingListView: View {
 
     @ViewBuilder
     private var states: some View {
-        if viewModel.isLoading && viewModel.listings.isEmpty {
+        if viewModel.isLoading && viewModel.rails.isEmpty {
             loadingState
-        } else if let error = viewModel.error, viewModel.listings.isEmpty {
+        } else if let error = viewModel.error, viewModel.rails.isEmpty {
             ErrorStateView(message: error.userMessage) {
                 Task { await viewModel.loadListings() }
             }
-        } else if viewModel.listings.isEmpty {
+        } else if viewModel.rails.isEmpty {
             EmptyStateView(
                 systemImage: "magnifyingglass",
                 iconTint: Color.coreAccent,
@@ -45,7 +45,7 @@ struct ListingListView: View {
                     SkeletonListingCard()
                 }
             }
-            .padding(.horizontal, Spacing.base)
+            .padding(.horizontal, Spacing.screenMargin)
             .padding(.top, Spacing.base)
         }
         .background(Color.canvas)
@@ -55,36 +55,19 @@ struct ListingListView: View {
 
     private var content: some View {
         ScrollView {
-            LazyVStack(spacing: Spacing.base) {
-                ForEach(Array(viewModel.listings.enumerated()), id: \.element.id) { index, listing in
-                    NavigationLink {
-                        ListingDetailPlaceholderView(listing: listing)
-                    } label: {
-                        ListingCardView(
-                            listing: listing,
-                            variant: .full,
-                            isSaved: viewModel.savedListingIDs.contains(listing.id),
-                            onToggleSave: {
-                                Task { await viewModel.toggleSave(listingID: listing.id) }
-                            }
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .onAppear {
-                        let triggerIndex = max(0, viewModel.listings.count - 3)
-                        if index == triggerIndex {
-                            Task { await viewModel.loadMore() }
-                        }
-                    }
-                }
-
-                if viewModel.isLoadingMore {
-                    ProgressView()
-                        .tint(Color.coreAccent)
-                        .padding(.vertical, Spacing.base)
+            LazyVStack(alignment: .leading, spacing: Spacing.lg) {
+                ForEach(viewModel.rails, id: \.category.id) { rail in
+                    CategoryRailView(
+                        rail: rail,
+                        savedIDs: viewModel.savedListingIDs,
+                        onToggleSave: { id in
+                            Task { await viewModel.toggleSave(listingID: id) }
+                        },
+                        // TODO: navigation-ready — wire to SeeAllView when that screen ships.
+                        onSeeAll: { }
+                    )
                 }
             }
-            .padding(.horizontal, Spacing.base)
             .padding(.top, Spacing.base)
             .padding(.bottom, Spacing.lg)
         }

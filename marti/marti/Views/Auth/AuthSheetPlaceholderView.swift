@@ -26,18 +26,11 @@ struct AuthSheetPlaceholderView: View {
 
                 Spacer()
 
-                Button {
+                Button("Continue") {
                     auth.isAuthenticated = true
                     dismiss()
-                } label: {
-                    Text("Continue")
-                        .font(.martiLabel1)
-                        .foregroundStyle(Color.canvas)
-                        .frame(maxWidth: .infinity, minHeight: 48)
-                        .background(Color.coreAccent)
-                        .clipShape(RoundedRectangle(cornerRadius: Radius.sm))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.primaryFullWidth)
                 .padding(.horizontal, Spacing.base)
                 .padding(.bottom, Spacing.lg)
             }

@@ -80,5 +80,16 @@ values
     array['WiFi', 'AC', 'Garden', 'Parking', 'Kitchen'], 6,
     'bbbb0000-0000-0000-0000-000000000001', 'Omar H.', null,
     true, null, 0, 'flexible'
+),
+(
+    '11111111-1111-1111-1111-111111111107',
+    'Rooftop Apartment in Hargeisa',
+    'Hargeisa', 'Ahmed Dhagax',
+    'Newly listed two-bedroom with a rooftop view over the city. Walking distance to the main market.',
+    7800, 9.5623, 44.0675,
+    array['https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200'],
+    array['WiFi', 'AC', 'Workspace'], 3,
+    'bbbb0000-0000-0000-0000-000000000001', 'Omar H.', null,
+    false, null, 0, 'flexible'
 )
 on conflict (id) do nothing;

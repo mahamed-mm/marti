@@ -59,13 +59,25 @@ Default simulator: **iPhone 17 Pro** (Xcode 26.x doesn't ship iPhone 16 Pro by d
 marti/Marti/
 ├── MartiApp.swift                 — @main entry, composes services into MainTabView
 ├── Info.plist                     — SUPABASE_URL / SUPABASE_ANON_KEY / MBXAccessToken
-├── Models/                        — Listing (@Model), ListingDTO, ListingFilter, City, AppError
+├── Models/                        — Listing (@Model) + ListingDTO, ListingFilter, City, AppError,
+│                                     DiscoveryCategory (@Model) + DiscoveryCategoryDTO, DiscoveryRail
 ├── Services/                      — protocol + concrete impl pairs
 ├── ViewModels/                    — @Observable classes, one per screen
 ├── Views/
 │   ├── MainTabView.swift          — composes FloatingTabView
-│   ├── Shared/                    — FloatingTabView, ListingCardView, EmptyStateView, …
-│   ├── Discovery/                 — DiscoveryView, ListingListView, ListingMapView, FilterSheetView
+│   ├── Shared/                    — FloatingTabView, ListingCardView, CityChipView, EmptyStateView,
+│   │                                 ErrorStateView (+ OfflineBannerView), SkeletonListingCard,
+│   │                                 Buttons (PrimaryButtonStyle + GhostButtonStyle),
+│   │                                 FavoriteHeartButton, VerifiedBadgeView
+│   ├── Discovery/
+│   │   ├── DiscoveryView.swift    — list + map layouts, filter / auth sheets
+│   │   ├── ListingListView.swift
+│   │   ├── ListingMapView.swift   — Mapbox v11 declarative Map
+│   │   ├── CategoryRailView.swift — horizontal rail (rail variant of ListingCardView)
+│   │   ├── FilterSheetView.swift
+│   │   ├── PriceRangeSlider.swift
+│   │   └── Components/            — DiscoveryHeaderPill, FeeInclusionTag, ListingPricePin,
+│   │                                 MapEmptyStatePill, SelectedListingCard
 │   ├── ListingDetail/             — placeholder for now
 │   └── Auth/                      — placeholder auth sheet
 ├── Extensions/
@@ -76,15 +88,18 @@ marti/Marti/
 marti/MartiTests/
 ├── Models/
 ├── Services/
-└── ViewModels/
+├── ViewModels/                    — ListingDiscoveryViewModelTests (the bulk of the suite)
+└── Views/                         — FavoriteHeartButtonTests (component constants)
 
 docs/
 ├── PRD.md                         — Product Requirements Document
-├── ARCHITECTURE.md                — high-level architecture
-├── DESIGN.md                      — design system
+├── ARCHITECTURE.md                — observed architecture (regenerate via /audit-architecture)
+├── DESIGN.md                      — observed design system (regenerate via /audit-design)
 ├── specs/                         — per-feature specs
 ├── tasks/                         — per-feature task trackers
-└── db/                            — SQL migrations (001_listings.sql, 002_sample_listings.sql)
+└── db/                            — SQL migrations:
+                                      001_listings.sql, 002_sample_listings.sql,
+                                      003_categories.sql, 004_sample_categories.sql
 ```
 
 ## Development workflow

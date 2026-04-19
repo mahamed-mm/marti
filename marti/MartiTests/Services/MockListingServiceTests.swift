@@ -6,7 +6,7 @@ struct MockListingServiceTests {
 
     @Test func recordsFetchInputs() async throws {
         let service = MockListingService()
-        let cursor = UUID()
+        let cursor = ListingCursor(createdAt: Date(timeIntervalSince1970: 1_800_000_000), id: UUID())
         let filter = ListingFilter(city: .mogadishu, guestCount: 3)
         _ = try await service.fetchListings(filter: filter, cursor: cursor, limit: 20)
 
@@ -47,11 +47,47 @@ struct MockListingServiceTests {
         }
     }
 
-    static func makeDTO(id: UUID = UUID()) -> ListingDTO {
+    @Test func fetchDiscoveryFeed_recordsCityAndReturnsHandlerOutput() async throws {
+        let service = MockListingService()
+        let feed = DiscoveryFeedDTO(
+            categories: [
+                DiscoveryCategoryDTO(
+                    id: UUID(),
+                    slug: "popular",
+                    title: "Popular",
+                    subtitle: nil,
+                    city: "Mogadishu",
+                    displayOrder: 10,
+                    createdAt: Date(timeIntervalSince1970: 1_800_000_000)
+                )
+            ],
+            listings: [Self.makeDTO()]
+        )
+        service.fetchFeedHandler = { _ in feed }
+
+        let result = try await service.fetchDiscoveryFeed(city: .mogadishu)
+
+        #expect(service.fetchFeedCallCount == 1)
+        #expect(service.lastFeedCity == .mogadishu)
+        #expect(result == feed)
+    }
+
+    @Test func fetchDiscoveryFeed_returnsEmptyWhenNoHandler() async throws {
+        let service = MockListingService()
+        let result = try await service.fetchDiscoveryFeed(city: nil)
+        #expect(result.categories.isEmpty)
+        #expect(result.listings.isEmpty)
+    }
+
+    nonisolated static func makeDTO(
+        id: UUID = UUID(),
+        city: String = "Mogadishu",
+        categoryIDs: [UUID] = []
+    ) -> ListingDTO {
         ListingDTO(
             id: id,
             title: "Test",
-            city: "Mogadishu",
+            city: city,
             neighborhood: "Hodan",
             description: "desc",
             pricePerNight: 8500,
@@ -68,7 +104,8 @@ struct MockListingServiceTests {
             reviewCount: 0,
             cancellationPolicy: "flexible",
             createdAt: Date(timeIntervalSince1970: 1_800_000_000),
-            updatedAt: Date(timeIntervalSince1970: 1_800_000_000)
+            updatedAt: Date(timeIntervalSince1970: 1_800_000_000),
+            categoryIDs: categoryIDs
         )
     }
 }
