@@ -203,8 +203,7 @@ struct ListingMapView: View {
     /// - Parameters:
     ///   - proxy: A `MapProxy` used for reading the map's camera state and interacting with the map runtime.
     /// Composes the map view and its annotation layer, wiring camera, style, interaction, and change handlers.
-    ///
-    — Provides the interactive Map view that renders `annotationItems`, applies the tuned map style and ornament options, and installs handlers to update visible listings, recompute annotation layout, manage the pan anchor gate, respond to style load and loading errors, dismiss selection on empty-map taps, and react to listing and "search this area" triggers.
+    /// — Provides the interactive Map view that renders `annotationItems`, applies the tuned map style and ornament options, and installs handlers to update visible listings, recompute annotation layout, manage the pan anchor gate, respond to style load and loading errors, dismiss selection on empty-map taps, and react to listing and "search this area" triggers.
     /// - Parameter proxy: A `MapProxy` used to read the underlying map state and drive camera- and style-dependent updates.
     /// - Returns: A view containing the configured `Map` and its annotation content.
     @ViewBuilder
