@@ -9,12 +9,15 @@ struct CityChipView: View {
         Button(action: action) {
             Text(title)
                 .font(.martiLabel2)
-                .foregroundStyle(isSelected ? Color.canvas : Color.textSecondary)
-                .padding(.horizontal, Spacing.base)
-                .frame(minHeight: 44)
+                .foregroundStyle(isSelected ? Color.canvas : Color.textPrimary)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.md)
                 .background(
-                    Capsule().fill(isSelected ? Color.coreAccent : Color.surfaceElevated)
+                    RoundedRectangle(cornerRadius: Radius.md)
+                        .fill(isSelected ? Color.coreAccent : Color.surfaceElevated)
                 )
+                .padding(.vertical, 7)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])

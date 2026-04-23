@@ -28,6 +28,7 @@ final class ListingDiscoveryViewModel {
     var viewMode: ViewMode = .list
     var selectedPinID: UUID?
     var isSearchSheetPresented: Bool = false
+    var isSearchScreenPresented: Bool = false
     var isAuthSheetPresented: Bool = false
     var feeTagDismissed: Bool = false
 
@@ -104,10 +105,7 @@ final class ListingDiscoveryViewModel {
     /// - Parameter city: The city enum value to map.
     /// - Returns: The display name for the given city (e.g., "Mogadishu", "Hargeisa").
     private static func cityName(_ city: City) -> String {
-        switch city {
-        case .mogadishu: "Mogadishu"
-        case .hargeisa:  "Hargeisa"
-        }
+        city.rawValue
     }
 
     /// Camera the map view should frame when it opens. Driven purely by

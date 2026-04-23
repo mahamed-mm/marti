@@ -25,7 +25,7 @@ struct DiscoveryHeroHeaderView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
+        VStack(alignment: .leading, spacing: Spacing.base) {
             titleRow
             searchCard
         }
@@ -57,10 +57,16 @@ struct DiscoveryHeroHeaderView: View {
 
     private var searchCard: some View {
         Button(action: onTapSearch) {
-            HStack(spacing: Spacing.md) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(Color.textPrimary)
+            HStack(spacing: Spacing.base) {
+                ZStack {
+                    Circle()
+                        .fill(Color.surfaceElevated)
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color.textPrimary)
+                }
+                .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(titleCopy)
                         .font(.martiHeading4)
@@ -76,14 +82,14 @@ struct DiscoveryHeroHeaderView: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, Spacing.base)
-            .padding(.vertical, Spacing.md + 2)
+            .padding(.vertical, Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: Radius.lg)
+                RoundedRectangle(cornerRadius: Radius.md)
                     .fill(Color.surfaceDefault)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: Radius.lg)
+                RoundedRectangle(cornerRadius: Radius.md)
                     .strokeBorder(Color.surfaceGlass, lineWidth: 1)
             )
             .shadow(token: .island)

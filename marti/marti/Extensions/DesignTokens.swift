@@ -103,7 +103,7 @@ extension Font {
     /// destination-led screen. Rounded + black gives a tactile identity read
     /// without adding a custom font file. Anchors to `.largeTitle` so Dynamic
     /// Type scales up to AX5.
-    static let martiDisplay    = Font.system(.largeTitle, design: .rounded, weight: .black)
+    static let martiDisplay    = Font.system(.title,      design: .rounded, weight: .black)
 
     /// Section headers (e.g. rail titles) — rounded design with bold weight so
     /// they read as titles, not labels. Body/meta stays on default SF.
