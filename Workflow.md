@@ -62,6 +62,26 @@ For trivial work (typo, single-field addition, copy tweak) skip `/ship-feature` 
 
 ---
 
+---
+
+## Bug-fix loop
+
+Bugs have a different shape than features — you don't know yet which layer owns the problem, so you can't start with a spec. The pipeline is diagnose → scope → fix → verify.
+
+Use **`/fix-bug <description>`** when the root cause is unclear. The pipeline:
+
+- Step 1: COO gathers the report (steps to reproduce, expected vs actual) → **CHECKPOINT 1** (confirm reproduction)
+- Step 2: COO proposes ranked hypotheses about which layer owns the bug → **CHECKPOINT 2** (approve investigation path)
+- Step 3: Delegate to the most-likely-owner role for **read-only** investigation → **CHECKPOINT 3** (approve fix plan)
+- Step 4: Delegate to `qa-engineer` to write a failing regression test → **CHECKPOINT 4** (confirm test is red)
+- Step 5: Delegate the fix to the owning role → **CHECKPOINT 5** (verify test turns green)
+- Step 6: Full QA pass to catch any new regressions
+- Step 7: COO close-out logs the bug and fix in `decisions.md` → **CHECKPOINT 6** (approve log entry)
+
+For small, obvious bugs where the layer is already clear (e.g., "this ViewModel doesn't publish its empty state"), skip `/fix-bug` — invoke the relevant specialist directly with a terse bug description. Reserve `/fix-bug` for bugs where diagnosis matters more than the fix.
+
+For regressions caught by `/ship-feature` Step 5 (QA), no new command is needed — the feature pipeline loops automatically back to the owning engineer with the failing test info.
+
 ## Audit cadence
 
 Re-run both audits after every 3–5 features, and always before App Store submission:
@@ -89,6 +109,7 @@ Active submission blockers live in [`docs/STATUS.md`](docs/STATUS.md), not here.
 | Command                  | Purpose                                                 |
 | ------------------------ | ------------------------------------------------------- |
 | `/ship-feature`          | End-to-end feature pipeline through the role system     |
+| `/fix-bug`               | Diagnose and fix a bug through the role pipeline        |
 | `/create-prd`            | One-off: (re)generate `docs/PRD.md` from a description  |
 | `/generate-spec`         | Spec for one feature from the PRD                       |
 | `/generate-tasks`        | Ordered task list from a spec                           |

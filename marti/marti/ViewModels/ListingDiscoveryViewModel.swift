@@ -16,7 +16,11 @@ final class ListingDiscoveryViewModel {
 
     private(set) var listings: [Listing] = []
     private(set) var categories: [DiscoveryCategory] = []
-    private(set) var isLoading: Bool = false
+    // Starts `true` so the first render of `DiscoveryView` picks the
+    // skeleton branch instead of flashing the empty state before `.task`
+    // fires `loadListings()`. `loadListings()` sets this to `false` at the
+    // end of every call.
+    private(set) var isLoading: Bool = true
     private(set) var isLoadingMore: Bool = false
     private(set) var error: AppError?
     private(set) var hasMorePages: Bool = true

@@ -128,7 +128,8 @@ struct MapListingsCarousel: View {
     /// next). SwiftUI's `accessibilityScrollAction` surfaces directional intent
     /// Moves selection to the neighboring listing based on a VoiceOver scroll edge.
     ///
-    — If there are no listings, does nothing.
+    ///
+    /// - If there are no listings, does nothing.
     /// - Parameters:
     /// Moves the current selection one step in the direction indicated by a VoiceOver accessibility scroll.
     ///

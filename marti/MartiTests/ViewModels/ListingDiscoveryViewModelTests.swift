@@ -8,6 +8,24 @@ import Testing
 @MainActor
 struct ListingDiscoveryViewModelTests {
 
+    // MARK: - Initial state
+
+    /// Regression: `DiscoveryView` rendered `EmptyStateView` ("No listings
+    /// found") on the very first frame of a cold launch — before `.task`
+    /// could flip `isLoading`. `ListingListView.states` picks the loading
+    /// branch only when `isLoading && rails.isEmpty`, so a fresh VM must
+    /// start with `isLoading == true` for `SkeletonListingCard`s to render
+    /// continuously until the feed resolves.
+    @Test func freshViewModel_startsInLoadingState_soFirstFrameShowsSkeletonsNotEmptyState() {
+        let vm = makeViewModel(service: MockListingService())
+
+        let rendersLoading = vm.isLoading && vm.rails.isEmpty
+        let rendersEmpty   = vm.rails.isEmpty && !vm.isLoading && vm.error == nil
+
+        #expect(rendersLoading, "Fresh VM must render SkeletonListingCard branch")
+        #expect(!rendersEmpty, "Fresh VM must not render EmptyStateView branch")
+    }
+
     // MARK: - Initial load
 
     @Test func initialLoad_fetchesDiscoveryFeedFromService() async {
