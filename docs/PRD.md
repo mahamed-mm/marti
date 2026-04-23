@@ -58,6 +58,8 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
   - Price-pin clustering with deterministic union-find (`ListingPricePin`, `PricePinCluster`)
   - Image cache infrastructure (`CachedImageService` — built; not yet wired into `AsyncImage` paths)
   - Date-availability filter is stubbed; wires into `bookings` table when Request-to-Book ships
+  - Dedicated full-screen Search entry (`SearchScreenView` + `SearchScreenViewModel`) split from the filters sheet: WHERE (focused text field + 5 suggested cities), WHEN (stacked `.graphical` DatePickers), WHO (stepper). Commits via `applyFilter`; map-mode keeps the filters sheet (`SearchSheetView`) behind the `slider.horizontal.3` icon.
+  - `City` enum extended to 5 cases (Mogadishu, Hargeisa, Kismayo, Garowe, Berbera) as Search-screen destination options. Listings data remains Mogadishu/Hargeisa-only per v1 scope.
 
 ### Feature 2: Listing Detail
 

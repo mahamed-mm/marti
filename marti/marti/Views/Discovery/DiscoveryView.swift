@@ -63,6 +63,12 @@ struct DiscoveryView: View {
         .sheet(isPresented: $viewModel.isSearchSheetPresented) {
             SearchSheetView(viewModel: viewModel)
         }
+        .fullScreenCover(isPresented: $viewModel.isSearchScreenPresented) {
+            SearchScreenView(initialFilter: viewModel.filter) { newFilter in
+                viewModel.applyFilter(newFilter)
+                viewModel.isSearchScreenPresented = false
+            }
+        }
         .sheet(isPresented: $viewModel.isAuthSheetPresented) {
             AuthSheetPlaceholderView()
         }
@@ -81,7 +87,7 @@ struct DiscoveryView: View {
     private var listLayout: some View {
         VStack(spacing: 0) {
             DiscoveryHeroHeaderView(viewModel: viewModel) {
-                viewModel.isSearchSheetPresented = true
+                viewModel.isSearchScreenPresented = true
             }
             cityChips
                 .padding(.top, Spacing.lg)
@@ -325,14 +331,8 @@ struct DiscoveryView: View {
         }
     }
 
-    /// Provides the display title for a city chip.
-    /// - Parameter city: The city to convert, or `nil` to represent the "All" option.
-    /// - Returns: The localized title string for the given city (`"All"` for `nil`, `"Mogadishu"`, or `"Hargeisa"`).
+    /// Display title for a city chip. `nil` represents the "All" option.
     private func title(for city: City?) -> String {
-        switch city {
-        case nil:           return "All"
-        case .mogadishu:    return "Mogadishu"
-        case .hargeisa:     return "Hargeisa"
-        }
+        city?.rawValue ?? "All"
     }
 }
