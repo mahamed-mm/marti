@@ -131,6 +131,19 @@ docs/
 ├── tasks/                  — Per-feature task trackers
 ├── db/                     — SQL migrations (run in numeric order)
 └── audits/                 — Dated /audit-architecture + /audit-design reports
+
+.claude/
+├── agents/                 — Role-based specialist subagents
+│   ├── ios-engineer.md
+│   ├── backend-engineer.md
+│   ├── maps-engineer.md
+│   ├── qa-engineer.md
+│   └── design-reviewer.md
+├── commands/               — Slash commands (/ship-feature, /generate-spec, etc.)
+└── jobs/                   — Per-role persistent state (context, inbox, park docs)
+    ├── coo/
+    │   └── control/        — COO-only: objectives, decisions, dependencies
+    └── <role>/             — context/ history/ inbox/ park/ per role
 ```
 
 ---
@@ -150,13 +163,13 @@ Full details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/DESIGN.m
 
 ## Workflow for new features
 
-1. `/generate-spec <feature>` → writes `docs/specs/<feature>.md` from the PRD.
-2. `/generate-tasks <feature>` → breaks the spec into ordered tasks in `docs/tasks/<feature>.md`.
-3. `/new-feature <feature>` → implements, tests, builds, HIG-reviews.
-4. `/build` · `/test` · `/run-app` → verify in simulator anytime.
-5. After every 3–5 features or before submission: `/audit-architecture` + `/audit-design` (reports land in `docs/audits/`), `/ship-prep` for App Store readiness.
+Marti uses a role-based pipeline. The main Claude Code session acts as **COO** (orchestrator) and delegates to specialist subagents for implementation.
 
-Full command reference and sequencing: [`Workflow.md`](Workflow.md).
+1. **`/ship-feature <feature>`** — end-to-end pipeline: plan → spec → backend → iOS → QA → design → close-out. Four human checkpoints protect scope and final writes.
+2. **`/build` · `/test` · `/run-app`** — verify in simulator anytime.
+3. After every 3–5 features or before submission: **`/audit-architecture`** + **`/audit-design`** (reports land in `docs/audits/`), **`/ship-prep`** for App Store readiness.
+
+Full command reference, sequencing, and role system: [`Workflow.md`](Workflow.md).
 
 ---
 
