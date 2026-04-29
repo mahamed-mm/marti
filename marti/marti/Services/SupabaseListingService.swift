@@ -101,8 +101,34 @@ nonisolated final class SupabaseListingService: ListingService {
             .value
     }
 
+    /// Fetches a single listing row by its primary key.
+    ///
+    /// Uses PostgREST's `.single()` modifier so a missing row returns the
+    /// `PGRST116` error which we surface as `AppError.notFound`. Other
+    /// transport / decode failures funnel through the standard `map(_:)`
+    /// helper and become `.network` or `.unknown`.
+    ///
+    /// - Parameter id: The listing UUID to fetch.
+    /// - Returns: The decoded `ListingDTO` for the row.
+    /// - Throws: `AppError.notFound` when no row matches `id`,
+    ///   `AppError.network` on transport failure, otherwise
+    ///   `AppError.unknown`.
+    func fetchListing(id: UUID) async throws -> ListingDTO {
+        do {
+            let dto: ListingDTO = try await client.from("listings")
+                .select()
+                .eq("id", value: id.uuidString)
+                .single()
+                .execute()
+                .value
+            return dto
+        } catch {
+            throw map(error)
+        }
+    }
+
     /// Add or remove the current user's saved listing.
-    /// 
+    ///
     /// Inserts a saved listing row for the authenticated user when `saved` is `true`; removes the saved row when `saved` is `false`.
     /// - Parameters:
     ///   - listingID: The UUID of the listing to save or unsave.
@@ -142,6 +168,11 @@ nonisolated final class SupabaseListingService: ListingService {
         }
         if let urlError = error as? URLError {
             return .network(urlError.localizedDescription)
+        }
+        // `.single()` raises `PGRST116` when zero rows match — surface that as
+        // `.notFound` so the Listing Detail screen can pop on a missing row.
+        if let postgrest = error as? PostgrestError, postgrest.code == "PGRST116" {
+            return .notFound
         }
         return .unknown(error.localizedDescription)
     }

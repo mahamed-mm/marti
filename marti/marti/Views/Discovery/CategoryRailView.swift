@@ -32,6 +32,11 @@ struct CategoryRailView: View {
     let savedIDs: Set<UUID>
     let onToggleSave: (UUID) -> Void
     let onSeeAll: () -> Void
+    /// Factory that builds a `ListingDetailViewModel` for the tapped listing,
+    /// reusing the parent VM's services and save-state mirror. Owning view
+    /// is the source of truth for these dependencies — the rail itself stays
+    /// presentational.
+    let makeDetailViewModel: (Listing) -> ListingDetailViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.base) {
@@ -76,7 +81,7 @@ struct CategoryRailView: View {
             LazyHStack(alignment: .top, spacing: Spacing.cardGap) {
                 ForEach(rail.listings, id: \.id) { listing in
                     NavigationLink {
-                        ListingDetailPlaceholderView(listing: listing)
+                        ListingDetailView(viewModel: makeDetailViewModel(listing))
                     } label: {
                         ListingCardView(
                             listing: listing,

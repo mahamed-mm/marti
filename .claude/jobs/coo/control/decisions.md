@@ -65,3 +65,43 @@ Format per entry:
 **Proposed by**: coo
 
 **Follow-up logged (not fixed here)**: `DiscoveryView.anchoredItem` (map-mode bottom chrome, `DiscoveryView.swift:234-266`) has no loading-state branch — during first-load in map mode, pin skeletons appear over the map but the bottom chrome is blank. Separate bug, narrower than this report; not bundled to keep the fix minimal.
+
+---
+
+## 2026-04-28 — `.notFound` UX policy: alert before pop, not silent dismiss
+
+**Context**: Listing Detail's `refresh()` call may return `AppError.notFound` (the listing was deleted server-side between the user tapping the card and the network call landing). The first cut shipped a silent `dismiss()` on detection. Design-reviewer flagged it Major during the Loop 1 audit.
+
+**Decision**: Detail surfaces that hit `.notFound` after a navigated push present a confirming alert (single-line title, single OK button, OK action pops the stack) rather than dismissing silently. For Listing Detail specifically: title `"This listing is no longer available"`, no body, single OK. The view binds a `shouldShowNotFoundAlert: Bool` flag on the ViewModel.
+
+**Rationale**: A silent pop reads as a phantom navigation event or app glitch — the user has no signal that the listing was deleted. Apple's Mail / Photos / Maps all acknowledge a vanished resource before unwinding. The alert isn't there to inform — it's there to convert a confusing nav event into a deliberate one. Cost: ~10 lines per surface; no infra cost.
+
+**Alternatives considered**:
+
+- Silent dismiss (the original implementation). Rejected per design-reviewer reasoning above.
+- Inline error state on the detail screen (no pop). Rejected because the listing genuinely no longer exists; staying on a dead screen is worse than unwinding with acknowledgment.
+- Toast at the parent screen after pop. Rejected because the user's mental model on push is "I'm looking at this listing"; the acknowledgment must land where the listing was visible, not the screen they came from.
+
+**Reversibility**: Cheap. One screen so far; future detail-ish surfaces (Booking Detail, Message Thread) will follow the same pattern when they ship.
+
+**Proposed by**: design-reviewer (audit `docs/audits/2026-04-28-design-audit-Listing Detail.md`)
+
+---
+
+## 2026-04-28 — Pushed detail surfaces hide the floating tab bar via `.hideFloatingTabBar(true)`
+
+**Context**: `FloatingTabView` hosts a custom canvas-masked tab bar that overlays the entire NavigationStack subtree (the home-indicator-area mask is global). Discovery toggles `.hideFloatingTabBar(viewModel.viewMode == .map)` to clear the bar in map mode, but the bar is otherwise visible across pushed children. When Listing Detail first shipped, the tab bar overlaid its sticky CTA — direct PRD AC1 violation flagged as Blocker B1 in the audit.
+
+**Decision**: Any view pushed via `.navigationDestination` onto a NavigationStack hosted inside `FloatingTabView` calls `.hideFloatingTabBar(true)` on its root container. Convention applies to every detail / drill-in surface. We do NOT auto-hide in `FloatingTabViewHelper` itself: too many false positives (some pushed views may legitimately want the bar).
+
+**Rationale**: Sticky CTAs, full-bleed photo galleries, immersive detail content all need the screen real estate that the tab bar otherwise consumes. Per-screen opt-in keeps `FloatingTabViewHelper` simple and predictable; auto-hide would bake a global navigation policy into a layout primitive.
+
+**Alternatives considered**:
+
+- Auto-hide on push by inspecting NavigationStack depth in `FloatingTabViewHelper`. Rejected — couples the layout primitive to navigation state and breaks any pushed view that wants the bar.
+- Move the policy into `MainTabView` via a `.tabViewStyle` config. Rejected — `MainTabView` doesn't see pushed children directly.
+- Hide globally and require pushed views to opt-in. Rejected — inverts the cost; most pushed views in scope today need the bar hidden, but the architecture should enforce intent at the screen level.
+
+**Reversibility**: Cheap. One callsite so far (Listing Detail). If we accumulate >5 detail surfaces all repeating the same modifier, revisit auto-hide.
+
+**Proposed by**: design-reviewer (audit `docs/audits/2026-04-28-design-audit-Listing Detail.md`, B1)

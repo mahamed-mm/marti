@@ -17,6 +17,7 @@ xcuserdata/
 # Xcode — build output
 build/
 DerivedData/
+screenshots/
 
 # Xcode — archives / binaries
 *.xcarchive

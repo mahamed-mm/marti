@@ -27,6 +27,12 @@ protocol ListingService: Sendable {
     /// Persists or removes a "saved" relationship between the current user and a listing.
     /// Throws `AppError.unauthorized` when no user is signed in.
     func toggleSaved(listingID: UUID, saved: Bool) async throws
+
+    /// Fetches a single listing by ID. Used by Listing Detail to refresh
+    /// the seeded `Listing` against the source of truth.
+    /// Throws `AppError.notFound` if the row is gone, `.network` on transport
+    /// failure, otherwise `.unknown`.
+    func fetchListing(id: UUID) async throws -> ListingDTO
 }
 
 extension ListingService {

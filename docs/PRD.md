@@ -64,18 +64,23 @@ Meanwhile, accommodation exists but is invisible to the diaspora audience that h
 ### Feature 2: Listing Detail
 
 - **Priority:** P0
-- **Status:** 🚧 Placeholder only — `ListingDetailPlaceholderView` stub (title + neighborhood + "coming soon"). Next feature in queue.
+- **Status:** ✅ Shipped (with two acceptance criteria intentionally deferred — see "Recent additions / deferrals" below)
 - **Description:** Full listing page with photo gallery, description, amenities, house rules, host profile (with verification badge), location on map, reviews, and pricing breakdown.
 - **User stories:**
   - As a traveler, I want to see detailed photos and description so that I know what to expect.
   - As a traveler, I want to read reviews from other diaspora travelers so that I can trust the listing.
 - **Acceptance criteria:**
-  - [ ] Scrollable photo gallery (min 3 photos required per listing)
-  - [ ] Host profile section with name, photo, verification status, response rate
-  - [ ] Amenities list (AC, WiFi, parking, airport pickup, etc.)
-  - [ ] Reviews section with ratings and text
-  - [ ] Map showing approximate location (neighborhood level, not exact address)
-  - [ ] "Request to Book" CTA with date and guest count
+  - [x] Scrollable photo gallery (paged horizontal swipe + page-dot indicator)
+  - [ ] Host profile section with name, photo, verification status, response rate — *partial: name + photo + verification ✅; response rate deferred (no schema column)*
+  - [x] Amenities list (AC, WiFi, parking, airport pickup, etc.)
+  - [ ] Reviews section with ratings and text — *partial: aggregate row (avg + count) ✅; individual review text deferred to Feature 5 (Reviews)*
+  - [x] Map showing approximate location (neighborhood level, not exact address) — `NeighborhoodMapView`, gestures disabled, fixed at zoom 13.5
+  - [ ] "Request to Book" CTA with date and guest count — *partial: sticky bottom CTA renders + presents `RequestToBookComingSoonSheet`; date/guest selection + real submission ship with Feature 3 (Request to Book)*
+- **Recent additions / deferrals not in original spec:**
+  - Save heart on detail surface routes unauthenticated taps to `AuthSheetPlaceholderView` (early adoption of Feature 7's auth-trigger acceptance, ahead of real auth)
+  - `.notFound` (listing deleted between push and refresh) shows a confirming alert before popping — see `decisions.md` 2026-04-28 entry
+  - Pushed detail surfaces hide the floating tab bar via `.hideFloatingTabBar(true)` — see `decisions.md` 2026-04-28 entry
+  - Service: `ListingService.fetchListing(id:)` added (single-row PostgREST GET; no schema change)
 
 ### Feature 3: Request to Book
 
@@ -242,4 +247,4 @@ In v1 with no in-app payments, "refund" means the reservation is released and no
 
 ---
 
-*Last updated: 2026-04-20*
+*Last updated: 2026-04-29*
