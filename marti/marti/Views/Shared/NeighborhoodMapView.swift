@@ -38,6 +38,13 @@ struct NeighborhoodMapView: View {
     /// distance without dominating the embed.
     private let markerDiameter: CGFloat = 18
 
+    /// Horizontal offset applied to the (i) attribution button so it doesn't
+    /// stack on top of the Mapbox wordmark when both share `.bottomLeading`.
+    /// Mirrors the value `ListingMapView` uses for the same purpose; copied
+    /// rather than shared because that one is `private` and the file's
+    /// leading comment defends keeping this view self-contained.
+    private let mapboxWordmarkClearance: CGFloat = 100
+
     /// Locked viewport: the camera is constructed once from `coordinate` and
     /// never reassigned. Combined with `gestureOptions` below, this means
     /// the user has no path to move the camera — the map is effectively a
@@ -91,15 +98,25 @@ struct NeighborhoodMapView: View {
             doubleTouchToZoomOutEnabled: false,
             quickZoomEnabled: false
         ))
-        // Hide map ornaments (logo, attribution, scale bar) for the embed
-        // surface — at 200pt tall they'd consume ~15% of the frame. Per
-        // Mapbox terms of use the attribution is still discoverable on the
-        // full Discovery map; this is a derivative preview, not the
-        // primary map surface.
+        // Mapbox terms of use require the logo and attribution button to be
+        // visible on every rendered map view — including derivative previews
+        // like this one. We hide only the scale bar (this is a static
+        // neighborhood graphic, not a navigation surface) and pin the logo +
+        // attribution button to the bottom-leading corner with a small
+        // positive inset so they sit cleanly inside the rounded embed. The
+        // attribution button is shifted right by the wordmark clearance so
+        // the (i) doesn't stack on the Mapbox logo. Mirrors Discovery's
+        // positioning so the two map surfaces read as the same product.
         .ornamentOptions(OrnamentOptions(
             scaleBar: ScaleBarViewOptions(visibility: .hidden),
-            logo: LogoViewOptions(margins: CGPoint(x: -200, y: -200)),
-            attributionButton: AttributionButtonOptions(margins: CGPoint(x: -200, y: -200))
+            logo: LogoViewOptions(
+                position: .bottomLeading,
+                margins: CGPoint(x: Spacing.md, y: Spacing.md)
+            ),
+            attributionButton: AttributionButtonOptions(
+                position: .bottomLeading,
+                margins: CGPoint(x: Spacing.md + mapboxWordmarkClearance, y: Spacing.md)
+            )
         ))
         .frame(height: height)
         .frame(maxWidth: .infinity)

@@ -1,16 +1,22 @@
 # Current state — ios-engineer
 
-> Last updated: 2026-04-29 (Listing Detail v2 audit fixes — Loop 2)
+> Last updated: 2026-04-30 (clamp `currentPhotoIndex` on listing refresh — TDD bug fix)
 > Update this file at the end of every session.
 
 ## What's in flight
 
-Nothing. Listing Detail v2 Loop 2 audit fixes landed (B1 + M1, single
-file `ListingDetailView.swift`). Build green; tests pass 97/97 (note:
-prior loop's "98" claim was off-by-one — actual baseline is 97 and
-remains 97 after this loop, see Loop 2 follow-up section in the
-2026-04-29 park doc). Awaiting design-reviewer re-audit or COO
-direction.
+Nothing. Today's session: TDD bug fix in `ListingDetailViewModel.refresh()`.
+A stale SwiftData seed could leave `currentPhotoIndex` out-of-bounds after
+the server returned a snapshot with fewer photos — orphaning the gallery
+TabView selection and rendering nonsense like "6 / 3" in the counter pill.
+Fix: clamp `currentPhotoIndex = min(currentPhotoIndex, max(0, listing.photoURLs.count - 1))`
+inside `refresh()`, immediately after `listing = Listing(dto: dto)`. New
+unit test asserts the clamp.
+
+**Test count is now 99/99 passing.** This corrects two layers of prior drift:
+the 2026-04-28 "98/98" baseline was actually correct, the 2026-04-29 Loop 2
+"reset to 97/97" was itself the off-by-one, and today's +1 test brings the
+count to 99. Build green on iPhone 17 Pro (Xcode 26.x).
 
 ## What's clean / stable
 
@@ -36,7 +42,9 @@ direction.
   inline red `Capsule()` Reserve pill on `Color.statusDanger` (CTA renamed
   from "Request to Book" to "Reserve"). New `cancellationPolicy: String`
   parameter.
-- 10 ViewModel tests + 3 service tests. **Test count 98/98, untouched.**
+- 11 ViewModel tests on `ListingDetailViewModelTests` (after today's add)
+  + 3 service tests + ~85 others across the suite. **Full suite count
+  99/99 green** as of 2026-04-30.
 
 ## What's blocked
 
