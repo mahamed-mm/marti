@@ -280,6 +280,31 @@ final class ListingDiscoveryViewModel {
         applyFilter(.default)
     }
 
+    // MARK: - Listing Detail factory
+
+    /// Builds a `ListingDetailViewModel` reusing the discovery VM's injected
+    /// services. Lives on the parent VM rather than the View so the View
+    /// stays dumb (no service plumbing). The `onSavedChanged` callback
+    /// mirrors save commits back into `savedListingIDs` so a heart toggled
+    /// on the detail screen keeps Discovery in sync on pop.
+    func makeDetailViewModel(for listing: Listing) -> ListingDetailViewModel {
+        ListingDetailViewModel(
+            listing: listing,
+            listingService: listingService,
+            currencyService: currencyService,
+            authManager: authManager,
+            isInitiallySaved: savedListingIDs.contains(listing.id),
+            onSavedChanged: { [weak self] saved in
+                guard let self else { return }
+                if saved {
+                    self.savedListingIDs.insert(listing.id)
+                } else {
+                    self.savedListingIDs.remove(listing.id)
+                }
+            }
+        )
+    }
+
     // MARK: - Save
 
     func toggleSave(listingID: UUID) async {

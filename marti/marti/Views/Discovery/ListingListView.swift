@@ -64,7 +64,10 @@ struct ListingListView: View {
                             Task { await viewModel.toggleSave(listingID: id) }
                         },
                         // TODO: navigation-ready — wire to SeeAllView when that screen ships.
-                        onSeeAll: { }
+                        onSeeAll: { },
+                        makeDetailViewModel: { listing in
+                            viewModel.makeDetailViewModel(for: listing)
+                        }
                     )
                 }
             }

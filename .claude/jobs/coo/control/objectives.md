@@ -7,12 +7,14 @@
 
 | #   | Objective                        | Owner(s) | Status | Target |
 | --- | -------------------------------- | -------- | ------ | ------ |
-| 1   | _(populate from docs/STATUS.md)_ |          |        |        |
+| 1   | _(none — Listing Detail shipped)_ |          |        |        |
 
 ## Completed
 
-| #   | Objective | Completed |
-| --- | --------- | --------- |
+| #   | Objective                                                     | Completed   |
+| --- | ------------------------------------------------------------- | ----------- |
+| 1   | Listing Detail (PRD Feature 2)                                | 2026-04-28  |
+| 2   | Listing Detail v2 — visual + layout pass (Airbnb reference)   | 2026-04-29  |
 
 ## Parked
 

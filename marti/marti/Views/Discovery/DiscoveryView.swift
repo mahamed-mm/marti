@@ -73,7 +73,7 @@ struct DiscoveryView: View {
             AuthSheetPlaceholderView()
         }
         .navigationDestination(item: $pushedListing) { listing in
-            ListingDetailPlaceholderView(listing: listing)
+            ListingDetailView(viewModel: viewModel.makeDetailViewModel(for: listing))
         }
         .hideFloatingTabBar(viewModel.viewMode == .map)
     }

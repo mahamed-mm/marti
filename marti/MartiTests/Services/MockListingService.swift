@@ -7,6 +7,7 @@ final class MockListingService: ListingService, @unchecked Sendable {
     var fetchHandler: (@Sendable (ListingFilter, ListingCursor?, Int) async throws -> [ListingDTO])?
     var fetchFeedHandler: (@Sendable (City?) async throws -> DiscoveryFeedDTO)?
     var toggleHandler: (@Sendable (UUID, Bool) async throws -> Void)?
+    var fetchListingHandler: (@Sendable (UUID) async throws -> ListingDTO)?
 
     private(set) var fetchCallCount = 0
     private(set) var lastFilter: ListingFilter?
@@ -19,6 +20,9 @@ final class MockListingService: ListingService, @unchecked Sendable {
     private(set) var toggleCallCount = 0
     private(set) var lastToggleListingID: UUID?
     private(set) var lastToggleSaved: Bool?
+
+    private(set) var fetchListingCallCount = 0
+    private(set) var lastFetchListingID: UUID?
 
     /// Fetches listings matching the provided filter and pagination cursor, up to the specified limit.
     /// - Parameters:
@@ -59,5 +63,18 @@ final class MockListingService: ListingService, @unchecked Sendable {
         lastToggleListingID = listingID
         lastToggleSaved = saved
         try await toggleHandler?(listingID, saved)
+    }
+
+    /// Returns a single listing by ID via the configured `fetchListingHandler`.
+    /// Records the call count and the most recent ID for assertion.
+    /// - Parameter id: The listing identifier to fetch.
+    /// - Returns: The DTO produced by the handler.
+    /// - Throws: `AppError.notFound` if no handler is configured (matches the
+    ///   real service's contract for a missing row).
+    func fetchListing(id: UUID) async throws -> ListingDTO {
+        fetchListingCallCount += 1
+        lastFetchListingID = id
+        guard let handler = fetchListingHandler else { throw AppError.notFound }
+        return try await handler(id)
     }
 }
