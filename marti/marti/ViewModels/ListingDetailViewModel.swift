@@ -101,6 +101,10 @@ final class ListingDetailViewModel {
             // built from the wire DTO. We don't write to the SwiftData
             // cache here — Discovery owns the cache write path.
             listing = Listing(dto: dto)
+            // Clamp the gallery's selection to the new photo count so a
+            // shrunk server snapshot doesn't leave the TabView pointing at
+            // an orphaned tag (counter would render "6 / 3").
+            currentPhotoIndex = min(currentPhotoIndex, max(0, listing.photoURLs.count - 1))
             isOffline = false
             error = nil
         } catch let appError as AppError {

@@ -81,6 +81,30 @@ struct ListingDetailViewModelTests {
         #expect(vm.shouldShowNotFoundAlert == true)
     }
 
+    /// Regression: when `refresh()` replaces the seed with a server snapshot
+    /// that has fewer photos, `currentPhotoIndex` must be clamped to the new
+    /// last valid index. Without the clamp, the gallery's TabView selection
+    /// goes orphan and the counter pill renders nonsense like "6 / 3".
+    @Test func refresh_whenServerSnapshotHasFewerPhotos_clampsCurrentPhotoIndex() async {
+        let seed = Self.makeListing(
+            photoURLs: (0..<6).map { "https://test.invalid/\($0).jpg" }
+        )
+        let shrunkDTO = Self.makeListingDTO(
+            id: seed.id,
+            photoURLs: (0..<3).map { "https://test.invalid/\($0).jpg" }
+        )
+        let service = MockListingService()
+        service.fetchListingHandler = { _ in shrunkDTO }
+
+        let vm = Self.makeVM(seed: seed, service: service)
+        vm.currentPhotoIndex = 5
+
+        await vm.refresh()
+
+        #expect(vm.listing.photoURLs.count == 3)
+        #expect(vm.currentPhotoIndex == 2)
+    }
+
     // MARK: - Save
 
     @Test func toggleSave_whenUnauthenticated_presentsAuthSheetAndDoesNotCallService() async {
@@ -213,7 +237,8 @@ struct ListingDetailViewModelTests {
 
     static func makeListing(
         id: UUID = UUID(),
-        title: String = "Test"
+        title: String = "Test",
+        photoURLs: [String] = ["https://test.invalid/a.jpg", "https://test.invalid/b.jpg"]
     ) -> Listing {
         Listing(
             id: id,
@@ -224,7 +249,7 @@ struct ListingDetailViewModelTests {
             pricePerNight: 8500,
             latitude: 2.0469,
             longitude: 45.3182,
-            photoURLs: ["https://test.invalid/a.jpg", "https://test.invalid/b.jpg"],
+            photoURLs: photoURLs,
             amenities: ["WiFi", "AC"],
             maxGuests: 2,
             hostID: UUID(),
@@ -241,7 +266,8 @@ struct ListingDetailViewModelTests {
 
     nonisolated static func makeListingDTO(
         id: UUID = UUID(),
-        title: String = "Test"
+        title: String = "Test",
+        photoURLs: [String] = ["https://test.invalid/a.jpg"]
     ) -> ListingDTO {
         ListingDTO(
             id: id,
@@ -252,7 +278,7 @@ struct ListingDetailViewModelTests {
             pricePerNight: 8500,
             latitude: 2.0469,
             longitude: 45.3182,
-            photoURLs: ["https://test.invalid/a.jpg"],
+            photoURLs: photoURLs,
             amenities: ["WiFi"],
             maxGuests: 2,
             hostID: UUID(),

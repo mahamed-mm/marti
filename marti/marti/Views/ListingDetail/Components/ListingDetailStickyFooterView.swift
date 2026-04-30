@@ -101,7 +101,9 @@ struct ListingDetailStickyFooterView: View {
     /// the literal `"strict"` string per the locked decision (the model
     /// stores raw policy strings and we don't have an enum yet).
     private var showFreeCancellation: Bool {
-        cancellationPolicy.lowercased() != "strict"
+        cancellationPolicy
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() != "strict"
     }
 
     /// USD price string from cents. `8500` → `$85`. No fractional cents on

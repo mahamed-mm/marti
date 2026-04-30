@@ -29,7 +29,9 @@ struct ListingCancellationPolicyView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private var key: String { policy.lowercased() }
+    private var key: String {
+        policy.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
 
     private var displayName: String {
         switch key {
