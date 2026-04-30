@@ -1,18 +1,20 @@
 import SwiftUI
 
-/// Sticky bottom CTA bar for Listing Detail. v2 visual pass: two stacked rows.
+/// Sticky bottom CTA bar for Listing Detail. v3 visual pass: two stacked rows.
 ///
 /// Top row (only when `cancellationPolicy != "strict"`):
 /// `checkmark` + "Free cancellation". Flat icon+text — no background; reads
 /// cleaner against the existing `.thinMaterial`.
 ///
 /// Bottom row: USD primary in `.martiHeading3` (bumped from `.martiLabel1` to
-/// match the reference visual weight), with a secondary line `"Monthly · …"`
-/// underneath. Trailing pill-shaped Reserve CTA on `Color.statusDanger`.
-/// The Reserve pill is intentionally *not* `PrimaryButtonStyle` — this red
-/// CTA is detail-screen-specific and we don't want to mutate the global
-/// primary style for a one-off color. If a second red CTA shows up later,
-/// extract a `DangerCapsuleButtonStyle`.
+/// match the reference visual weight). Secondary line is dropped when SOS
+/// is unavailable per v3 §M ("only render sub-line when SOS rate present"),
+/// rather than rendering a bare "Monthly" label that adds no information.
+/// Trailing pill-shaped Reserve CTA on `Color.statusDanger`. The Reserve pill
+/// is intentionally *not* `PrimaryButtonStyle` — this red CTA is
+/// detail-screen-specific and we don't want to mutate the global primary
+/// style for a one-off color. If a second red CTA shows up later, extract
+/// a `DangerCapsuleButtonStyle`.
 ///
 /// Money formatting: USD comes from `pricePerNightUSDCents` as a plain `$NN`
 /// string (cents are stored as `Int USD cents` per project gotcha). SOS is
@@ -68,10 +70,12 @@ struct ListingDetailStickyFooterView: View {
                     .font(.martiHeading3)
                     .foregroundStyle(Color.textPrimary)
                     .accessibilityLabel("\(usdString) per month")
-                Text(secondaryLine)
-                    .font(.martiFootnote)
-                    .foregroundStyle(Color.textSecondary)
-                    .lineLimit(1)
+                if let secondary = secondaryLine {
+                    Text(secondary)
+                        .font(.martiFootnote)
+                        .foregroundStyle(Color.textSecondary)
+                        .lineLimit(1)
+                }
             }
 
             Spacer(minLength: Spacing.md)
@@ -116,13 +120,11 @@ struct ListingDetailStickyFooterView: View {
         return String(format: "$%.2f", dollars)
     }
 
-    /// Secondary line under the price. Drops the SOS half when the rate is
-    /// unavailable rather than rendering a trailing separator with nothing
-    /// after it.
-    private var secondaryLine: String {
-        if let sos = fullSOSPriceLine {
-            return "Monthly · \(sos)"
-        }
-        return "Monthly"
+    /// Secondary line under the price. v3 §M: only render when SOS is
+    /// available — otherwise drop the line entirely rather than showing a
+    /// bare "Monthly" label that adds nothing.
+    private var secondaryLine: String? {
+        guard let sos = fullSOSPriceLine else { return nil }
+        return "Monthly · \(sos)"
     }
 }
