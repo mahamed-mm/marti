@@ -141,8 +141,8 @@ struct DiscoveryView: View {
         .overlay(alignment: .top) {
             HStack(spacing: 0) {
                 FloatingMapIconButton(
-                    systemImage: "list.bullet",
-                    accessibilityLabel: "Show list view"
+                    systemImage: "chevron.left",
+                    accessibilityLabel: "Back to list"
                 ) {
                     viewModel.setViewMode(.list)
                 }
